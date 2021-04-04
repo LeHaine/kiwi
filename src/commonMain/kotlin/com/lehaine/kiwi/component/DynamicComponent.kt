@@ -1,9 +1,7 @@
 package com.lehaine.kiwi.component
 
-import com.soywiz.korma.geom.Rectangle
 import kotlin.math.abs
 import kotlin.math.ceil
-import kotlin.math.floor
 import kotlin.math.pow
 
 interface DynamicComponent : GridPositionComponent {
@@ -99,19 +97,4 @@ open class DynamicComponentDefault(
 
     override var width: Double = 16.0
     override var height: Double = 16.0
-
-
-    override val px get() = (cx + xr) * gridCellSize
-    override val py get() = (cy + yr) * gridCellSize
-    override val centerX get() = px + (0.5 - anchorX) * gridCellSize
-    override val centerY get() = py + (0.5 - anchorY) * gridCellSize
-
-    private var _bounds = Rectangle()
-    override val bounds: Rectangle
-        get() = _bounds.apply {
-            top = py - anchorY * width
-            right = px + (1 - px) * width
-            bottom = py + (1 - anchorY) * height
-            left = px - anchorX * height
-        }
 }
