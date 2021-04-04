@@ -1,9 +1,7 @@
-package com.lehaine.kiwi
+package com.lehaine.kiwi.component
 
-import com.lehaine.kiwi.component.GridPositionComponent
-import com.lehaine.kiwi.component.LevelComponent
-import com.lehaine.kiwi.component.UpdatableComponent
 import com.lehaine.kiwi.component.ext.castRayTo
+import com.lehaine.kiwi.cooldown
 import com.soywiz.kds.iterators.fastForEach
 import com.soywiz.klock.TimeSpan
 import com.soywiz.korge.view.*
