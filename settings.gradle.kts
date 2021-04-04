@@ -1,3 +1,5 @@
+rootProject.name = "kiwi"
+
 pluginManagement {
     repositories {
         mavenLocal()
