@@ -1,4 +1,4 @@
-package com.lehaine.lib
+package com.lehaine.kiwi
 
 import kotlin.math.abs
 import kotlin.math.floor

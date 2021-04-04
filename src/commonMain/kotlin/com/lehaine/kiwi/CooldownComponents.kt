@@ -1,4 +1,4 @@
-package com.lehaine.lib
+package com.lehaine.kiwi
 
 import com.soywiz.kds.Pool
 import com.soywiz.kds.iterators.fastForEach

@@ -1,4 +1,4 @@
-package com.lehaine.lib
+package com.lehaine.kiwi
 
 import kotlin.math.sqrt
 import kotlin.random.Random

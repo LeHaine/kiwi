@@ -1,4 +1,4 @@
-package com.lehaine.lib
+package com.lehaine.kiwi
 
 import com.soywiz.klock.TimeSpan
 import com.soywiz.klock.milliseconds

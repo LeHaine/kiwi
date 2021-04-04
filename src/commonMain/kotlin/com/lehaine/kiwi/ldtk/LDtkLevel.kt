@@ -1,4 +1,4 @@
-package com.lehaine.lib.ldtk
+package com.lehaine.kiwi.ldtk
 
 import com.lehaine.ldtk.Level
 import com.soywiz.korge.view.tiles.TileSet

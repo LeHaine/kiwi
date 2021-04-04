@@ -1,4 +1,4 @@
-package com.lehaine.lib.particle
+package com.lehaine.kiwi.particle
 
 import com.soywiz.klock.TimeSpan
 import com.soywiz.klock.seconds
