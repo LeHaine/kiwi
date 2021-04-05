@@ -11,7 +11,7 @@ import com.soywiz.korma.geom.vector.rect
 
 
 interface GameLevelComponent<LevelMark> : LevelComponent<LevelMark> {
-    val entities: ArrayList<out BaseGameEntity>
+    val entities: ArrayList<BaseGameEntity>
 }
 
 abstract class BaseGameEntity(open val level: GameLevelComponent<*>, val container: Container) :
