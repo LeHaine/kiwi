@@ -13,9 +13,9 @@ class PlatformerDynamicComponentDefault<LevelMark>(
     override var cx: Int = 0,
     override var cy: Int = 0,
     override var xr: Double = 0.5,
-    override var yr: Double = 0.5,
+    override var yr: Double = 1.0,
     override var anchorX: Double = 0.5,
-    override var anchorY: Double = 0.5,
+    override var anchorY: Double = 1.0,
     override var gridCellSize: Int = 16
 ) : PlatformerDynamicComponent {
     override var gravityX: Double = 0.0
