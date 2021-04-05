@@ -21,10 +21,21 @@ inline fun Container.cameraContainer(
     viewBounds: Rectangle = Rectangle(),
     clampToViewBounds: Boolean = false,
     clip: Boolean = true,
+    simpleCull: Boolean = true,
     noinline contentBuilder: (camera: CameraContainer) -> Container = { FixedSizeContainer(it.width, it.height) },
     noinline block: @ViewDslMarker CameraContainer.() -> Unit = {},
     content: @ViewDslMarker Container.() -> Unit = {}
-) = CameraContainer(width, height, deadZone, viewBounds, clampToViewBounds, clip, contentBuilder, block).addTo(this)
+) = CameraContainer(
+    width,
+    height,
+    deadZone,
+    viewBounds,
+    clampToViewBounds,
+    clip,
+    simpleCull,
+    contentBuilder,
+    block
+).addTo(this)
     .also { content(it.content) }
 
 class CameraContainer(
@@ -34,6 +45,7 @@ class CameraContainer(
     val viewBounds: Rectangle = Rectangle(),
     clampToViewBounds: Boolean = false,
     clip: Boolean = true,
+    simpleCull: Boolean = true,
     contentBuilder: (camera: CameraContainer) -> Container = { FixedSizeContainer(it.width, it.height) },
     block: @ViewDslMarker CameraContainer.() -> Unit = {}
 ) : FixedSizeContainer(width, height, clip), View.Reference {
@@ -207,6 +219,9 @@ class CameraContainer(
     private val tempPoint = Point()
     private var shakeFrames = 0
 
+    private val camGlobalBounds = Rectangle()
+    private val tempRect = Rectangle()
+
     init {
         block(this)
         contentContainer.addTo(this)
@@ -264,6 +279,14 @@ class CameraContainer(
 
             sourceCamera.x = cameraX
             sourceCamera.y = cameraY
+
+            if (simpleCull) {
+                getGlobalBounds(camGlobalBounds)
+                foreachDescendant {
+                    it.getGlobalBounds(tempRect)
+                    it.visible = camGlobalBounds.intersects(tempRect)
+                }
+            }
         }
     }
 
