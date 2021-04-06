@@ -44,7 +44,7 @@ abstract class BaseGameEntity(open val level: GameLevelComponent<*>, val contain
 
     open fun onCollisionExit(entity: BaseGameEntity) {}
 
-    open fun onLevelCollision(xDir:Int, yDir:Int) {}
+    open fun onLevelCollision(xDir: Int, yDir: Int) {}
 }
 
 fun <T : BaseGameEntity> T.addTo(parent: Container): T {
@@ -69,8 +69,11 @@ inline fun <T> T.addShape(crossinline block: (VectorBuilder.() -> Unit)) where T
     container.hitShape(block)
 }
 
-fun <T> T.addRectShape() where T : BaseGameEntity, T : GridPositionComponent {
-    addShape { rect(width * 0.5, height * 0.5, width, height) }
+fun <T> T.addRectShape(
+    anchorX: Double = 0.5,
+    anchorY: Double = 0.5
+) where T : BaseGameEntity, T : GridPositionComponent {
+    addShape { rect(width * anchorX, height * anchorY, width, height) }
 }
 
 fun <T> T.addCollision() where T : BaseGameEntity, T : GridPositionComponent {
@@ -93,6 +96,10 @@ fun <T> T.addCollision() where T : BaseGameEntity, T : GridPositionComponent {
             }
         }
     }
+}
+
+fun <T> T.addOnLevelCollision() where T : LevelDynamicComponent, T : BaseGameEntity {
+    onLevelCollision = ::onLevelCollision
 }
 
 val BaseGameEntity.cooldown get() = container.cooldown
