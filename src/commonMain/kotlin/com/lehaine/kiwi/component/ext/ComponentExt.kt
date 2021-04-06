@@ -19,6 +19,13 @@ fun GridPositionComponent.toGridPosition(cx: Int, cy: Int, xr: Double = 0.5, yr:
     this.yr = yr
 }
 
+fun GridPositionComponent.toPixelPosition(x: Double, y: Double) {
+    this.cx = (x / gridCellSize).toInt()
+    this.cy = (y / gridCellSize).toInt()
+    this.xr = (x - cx * gridCellSize) / gridCellSize
+    this.yr = (y - cy * gridCellSize) / gridCellSize
+}
+
 fun GridPositionComponent.dirTo(targetGridPosition: GridPositionComponent) =
     if (targetGridPosition.centerX > centerX) 1 else -1
 
