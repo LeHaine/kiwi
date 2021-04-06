@@ -43,6 +43,8 @@ abstract class BaseGameEntity(open val level: GameLevelComponent<*>, val contain
     open fun onCollisionUpdate(entity: BaseGameEntity) {}
 
     open fun onCollisionExit(entity: BaseGameEntity) {}
+
+    open fun onLevelCollision(xDir:Int, yDir:Int) {}
 }
 
 fun <T : BaseGameEntity> T.addTo(parent: Container): T {
