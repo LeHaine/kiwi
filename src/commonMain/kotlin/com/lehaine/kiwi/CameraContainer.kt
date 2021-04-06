@@ -22,6 +22,7 @@ inline fun Container.cameraContainer(
     clampToViewBounds: Boolean = false,
     clip: Boolean = true,
     simpleCull: Boolean = true,
+    cullExclusions: List<String> = listOf(),
     noinline contentBuilder: (camera: CameraContainer) -> Container = { FixedSizeContainer(it.width, it.height) },
     noinline block: @ViewDslMarker CameraContainer.() -> Unit = {},
     content: @ViewDslMarker Container.() -> Unit = {}
@@ -33,6 +34,7 @@ inline fun Container.cameraContainer(
     clampToViewBounds,
     clip,
     simpleCull,
+    cullExclusions,
     contentBuilder,
     block
 ).addTo(this)
@@ -46,6 +48,7 @@ class CameraContainer(
     clampToViewBounds: Boolean = false,
     clip: Boolean = true,
     simpleCull: Boolean = true,
+    cullExclusions:List<String> = listOf(),
     contentBuilder: (camera: CameraContainer) -> Container = { FixedSizeContainer(it.width, it.height) },
     block: @ViewDslMarker CameraContainer.() -> Unit = {}
 ) : FixedSizeContainer(width, height, clip), View.Reference {
@@ -283,8 +286,10 @@ class CameraContainer(
             if (simpleCull) {
                 getGlobalBounds(camGlobalBounds)
                 foreachDescendant {
-                    it.getGlobalBounds(tempRect)
-                    it.visible = camGlobalBounds.intersects(tempRect)
+                    if(!cullExclusions.contains(it.name)) {
+                        it.getGlobalBounds(tempRect)
+                        it.visible = camGlobalBounds.intersects(tempRect)
+                    }
                 }
             }
         }
