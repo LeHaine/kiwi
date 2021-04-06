@@ -3,7 +3,7 @@ package com.lehaine.kiwi.component
 import kotlin.math.floor
 import kotlin.math.pow
 
-interface PlatformerDynamicComponent : DynamicComponent {
+interface PlatformerDynamicComponent : LevelDynamicComponent {
     val onGround: Boolean
     var hasGravity: Boolean
 }
@@ -16,7 +16,13 @@ class PlatformerDynamicComponentDefault(
     override var yr: Double = 1.0,
     override var anchorX: Double = 0.5,
     override var anchorY: Double = 1.0,
-    override var gridCellSize: Int = 16
+    override var gridCellSize: Int = 16,
+    override var rightCollisionRatio: Double = 0.7,
+    override var leftCollisionRatio: Double = 0.3,
+    override var bottomCollisionRatio: Double = 1.0,
+    override var topCollisionRatio: Double = 1.0,
+    override var useTopCollisionRatio: Boolean = false,
+    override var onLevelCollision: ((xDir: Int, yDir: Int) -> Unit)? = null
 ) : PlatformerDynamicComponent {
     override var gravityX: Double = 0.0
     override var gravityY: Double = 0.028
@@ -35,26 +41,30 @@ class PlatformerDynamicComponentDefault(
     private val gravityPulling get() = !onGround && hasGravity
 
     override fun checkXCollision(tmod: Double) {
-        if (levelComponent.hasCollision(cx + 1, cy) && xr >= 0.7) {
-            xr = 0.7
+        if (levelComponent.hasCollision(cx + 1, cy) && xr >= rightCollisionRatio) {
+            xr = rightCollisionRatio
             velocityX *= 0.5.pow(tmod)
+            onLevelCollision?.invoke(1, 0)
         }
 
-        if (levelComponent.hasCollision(cx - 1, cy) && xr <= 0.3) {
-            xr = 0.3
+        if (levelComponent.hasCollision(cx - 1, cy) && xr <= leftCollisionRatio) {
+            xr = leftCollisionRatio
             velocityX *= 0.5.pow(tmod)
+            onLevelCollision?.invoke(-1, 0)
         }
     }
 
     override fun checkYCollision(tmod: Double) {
-        val heightCoordDiff = floor(height / gridCellSize.toDouble())
+        val heightCoordDiff = if (useTopCollisionRatio) topCollisionRatio else floor(height / gridCellSize.toDouble())
         if (levelComponent.hasCollision(cx, cy - 1) && yr <= heightCoordDiff) {
             yr = heightCoordDiff
             velocityY = 0.0
+            onLevelCollision?.invoke(0, -1)
         }
-        if (levelComponent.hasCollision(cx, cy + 1) && yr >= 1) {
+        if (levelComponent.hasCollision(cx, cy + 1) && yr >= bottomCollisionRatio) {
             velocityY = 0.0
-            yr = 1.0
+            yr = bottomCollisionRatio
+            onLevelCollision?.invoke(0, 1)
         }
     }
 
