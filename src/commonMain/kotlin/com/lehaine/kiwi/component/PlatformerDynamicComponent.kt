@@ -8,8 +8,8 @@ interface PlatformerDynamicComponent : DynamicComponent {
     var hasGravity: Boolean
 }
 
-class PlatformerDynamicComponentDefault<LevelMark>(
-    private val levelComponent: LevelComponent<LevelMark>,
+class PlatformerDynamicComponentDefault(
+    private val levelComponent: LevelComponent<*>,
     override var cx: Int = 0,
     override var cy: Int = 0,
     override var xr: Double = 0.5,
