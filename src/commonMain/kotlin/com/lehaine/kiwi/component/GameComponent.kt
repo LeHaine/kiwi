@@ -18,6 +18,8 @@ abstract class BaseGameEntity(open val level: GameLevelComponent<*>, val contain
     UpdatableComponent {
     var destroyed = false
 
+    var lastCollision: BaseGameEntity? = null
+
     var onDestroyedCallback: ((BaseGameEntity) -> Unit)? = null
 
     val input get() = container.stage!!.views.input
@@ -89,6 +91,7 @@ fun <T> T.addCollision() where T : BaseGameEntity, T : GridPositionComponent {
                         onCollisionEnter(it)
                         collisionState[it] = true
                     }
+                    lastCollision = it
                 } else if (collisionState[it] == true) {
                     onCollisionExit(it)
                     collisionState[it] = false
