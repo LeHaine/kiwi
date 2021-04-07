@@ -223,10 +223,12 @@ class EnhancedSprite(
 
                 }
             }
-            if (reversed) --currentSpriteIndex else ++currentSpriteIndex
-            totalFramesPlayed++
-            triggerEvent(_onFrameChanged)
-            lastAnimationFrameTime = 0.milliseconds
+            if(animationRequested) {
+                if (reversed) --currentSpriteIndex else ++currentSpriteIndex
+                totalFramesPlayed++
+                triggerEvent(_onFrameChanged)
+                lastAnimationFrameTime = 0.milliseconds
+            }
         }
     }
 
