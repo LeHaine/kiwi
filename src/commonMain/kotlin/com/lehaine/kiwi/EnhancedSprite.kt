@@ -118,9 +118,11 @@ class EnhancedSprite(
         spriteAnimation: SpriteAnimation,
         spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation)
     ) {
-        lastAnimation = currentAnimation
-        lastLooped = animationLooped
-        lastReversed = reversed
+        if (!overlapPlaying) {
+            lastAnimation = currentAnimation
+            lastLooped = animationLooped
+            lastReversed = reversed
+        }
         overlapPlaying = true
         playAnimation(spriteAnimation, spriteDisplayTime, startFrame = 0)
     }
@@ -223,7 +225,7 @@ class EnhancedSprite(
 
                 }
             }
-            if(animationRequested) {
+            if (animationRequested) {
                 if (reversed) --currentSpriteIndex else ++currentSpriteIndex
                 totalFramesPlayed++
                 triggerEvent(_onFrameChanged)
