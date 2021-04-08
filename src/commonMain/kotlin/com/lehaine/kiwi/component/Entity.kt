@@ -111,11 +111,6 @@ open class Entity(
             !level.hasCollision(cx, cy) || position.cx == cx && position.cy == cy
         }
 
-    fun addTo(parent: Container): Entity {
-        container.addTo(parent)
-        return this
-    }
-
     protected fun syncViewPosition() {
         container.x = position.px
         container.y = position.py
@@ -131,6 +126,11 @@ open class Entity(
     ) {
         addShape { rect(position.width * anchorX, position.height * anchorY, position.width, position.height) }
     }
+}
+
+fun <T : Entity> T.addTo(parent: Container): T {
+    container.addTo(parent)
+    return this
 }
 
 open class SpriteEntity(
