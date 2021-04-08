@@ -13,8 +13,8 @@ import com.soywiz.korma.geom.vector.VectorBuilder
 import com.soywiz.korma.geom.vector.rect
 
 open class Entity(
-    val position: GridPositionComponent = GridPositionComponentDefault(),
-    val scale: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
+    val gridPositionComponent: GridPositionComponent = GridPositionComponentDefault(),
+    val scaleComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     val container: Container = Container()
 ) : UpdatableComponent {
     private val collisionState = mutableMapOf<Entity, Boolean>()
@@ -45,12 +45,12 @@ open class Entity(
     override var tmod: Double = 1.0
 
     override fun update(dt: TimeSpan) {
-        position.updateGridPosition(tmod)
+        gridPositionComponent.updateGridPosition(tmod)
     }
 
     override fun postUpdate(dt: TimeSpan) {
         syncViewPosition()
-        scale.updateStretchAndScale()
+        scaleComponent.updateStretchAndScale()
 
         if (enableCollisionChecks) {
             container.run {
@@ -101,19 +101,19 @@ open class Entity(
         cooldown(name, time, callback)
 
     fun castRayTo(target: GridPositionComponent, canRayPass: (Int, Int) -> Boolean) =
-        position.castRayTo(target, canRayPass)
+        gridPositionComponent.castRayTo(target, canRayPass)
 
     fun castRayTo(target: Entity, canRayPass: (Int, Int) -> Boolean) =
-        position.castRayTo(target.position, canRayPass)
+        gridPositionComponent.castRayTo(target.gridPositionComponent, canRayPass)
 
     fun castRayTo(target: GridPositionComponent, level: LevelComponent<*>) =
-        position.castRayTo(target) { cx, cy ->
-            !level.hasCollision(cx, cy) || position.cx == cx && position.cy == cy
+        gridPositionComponent.castRayTo(target) { cx, cy ->
+            !level.hasCollision(cx, cy) || gridPositionComponent.cx == cx && gridPositionComponent.cy == cy
         }
 
     protected fun syncViewPosition() {
-        container.x = position.px
-        container.y = position.py
+        container.x = gridPositionComponent.px
+        container.y = gridPositionComponent.py
     }
 
     protected inline fun addShape(crossinline block: (VectorBuilder.() -> Unit)) {
@@ -124,7 +124,14 @@ open class Entity(
         anchorX: Double = 0.5,
         anchorY: Double = 0.5
     ) {
-        addShape { rect(position.width * anchorX, position.height * anchorY, position.width, position.height) }
+        addShape {
+            rect(
+                gridPositionComponent.width * anchorX,
+                gridPositionComponent.height * anchorY,
+                gridPositionComponent.width,
+                gridPositionComponent.height
+            )
+        }
     }
 }
 
@@ -134,14 +141,14 @@ fun <T : Entity> T.addTo(parent: Container): T {
 }
 
 open class SpriteEntity(
-    val sprite: SpriteComponent = SpriteComponentDefault(),
-    position: GridPositionComponent = GridPositionComponentDefault(),
-    scale: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
+    val spriteComponent: SpriteComponent = SpriteComponentDefault(),
+    gridPositionComponent: GridPositionComponent = GridPositionComponentDefault(),
+    scaleAndStretchComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     container: Container = Container()
-) : Entity(position, scale, container) {
+) : Entity(gridPositionComponent, scaleAndStretchComponent, container) {
 
     init {
-        container.addChild(sprite.sprite)
+        container.addChild(spriteComponent.sprite)
     }
 
     override fun postUpdate(dt: TimeSpan) {
@@ -150,24 +157,24 @@ open class SpriteEntity(
     }
 
     protected fun syncSprite() {
-        val sprite = sprite.sprite
-        sprite.scaleX = this.sprite.dir.toDouble() * scale.scaleX * scale.stretchX
-        sprite.scaleY = scale.scaleY * scale.stretchY
+        val sprite = spriteComponent.sprite
+        sprite.scaleX = this.spriteComponent.dir.toDouble() * scaleComponent.scaleX * scaleComponent.stretchX
+        sprite.scaleY = scaleComponent.scaleY * scaleComponent.stretchY
     }
 }
 
 
 open class SpriteLevelEntity(
     val level: LevelComponent<*>,
-    sprite: SpriteComponent = SpriteComponentDefault(),
-    position: LevelDynamicComponent = LevelDynamicComponentDefault(level),
-    scale: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
+    spriteComponent: SpriteComponent = SpriteComponentDefault(),
+    levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(level),
+    scaleComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     container: Container = Container()
-) : SpriteEntity(sprite, position, scale, container) {
+) : SpriteEntity(spriteComponent, levelDynamicComponent, scaleComponent, container) {
 
     init {
         collisionEntities = level.entities
-        position.onLevelCollision = ::onLevelCollision
+        levelDynamicComponent.onLevelCollision = ::onLevelCollision
     }
 
     override fun destroy() {
@@ -178,19 +185,19 @@ open class SpriteLevelEntity(
     open fun onLevelCollision(xDir: Int, yDir: Int) {}
 
     fun castRayTo(target: GridPositionComponent) = castRayTo(target, level)
-    fun castRayTo(target: Entity) = castRayTo(target.position)
+    fun castRayTo(target: Entity) = castRayTo(target.gridPositionComponent)
 }
 
 open class LevelEntity(
     val level: LevelComponent<*>,
-    position: LevelDynamicComponent = LevelDynamicComponentDefault(level),
-    scale: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
+    levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(level),
+    scaleAndStretchComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     container: Container = Container()
-) : Entity(position, scale, container) {
+) : Entity(levelDynamicComponent, scaleAndStretchComponent, container) {
 
     init {
         collisionEntities = level.entities
-        position.onLevelCollision = ::onLevelCollision
+        levelDynamicComponent.onLevelCollision = ::onLevelCollision
     }
 
 
@@ -202,5 +209,5 @@ open class LevelEntity(
     open fun onLevelCollision(xDir: Int, yDir: Int) {}
 
     fun castRayTo(target: GridPositionComponent) = castRayTo(target, level)
-    fun castRayTo(target: Entity) = castRayTo(target.position)
+    fun castRayTo(target: Entity) = castRayTo(target.gridPositionComponent)
 }
