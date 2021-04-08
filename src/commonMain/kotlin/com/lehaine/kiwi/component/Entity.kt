@@ -154,19 +154,22 @@ open class SpriteEntity(
 open class SpriteLevelEntity(
     val level: LevelComponent<*>,
     sprite: SpriteComponent = SpriteComponentDefault(),
-    position: GridPositionComponent = GridPositionComponentDefault(),
+    position: LevelDynamicComponent = LevelDynamicComponentDefault(level),
     scale: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     container: Container = Container()
 ) : SpriteEntity(sprite, position, scale, container) {
 
     init {
         collisionEntities = level.entities
+        position.onLevelCollision = ::onLevelCollision
     }
 
     override fun destroy() {
         super.destroy()
         level.entities.remove(this)
     }
+
+    open fun onLevelCollision(xDir: Int, yDir: Int) {}
 
     fun castRayTo(target: GridPositionComponent) = castRayTo(target, level)
     fun castRayTo(target: Entity) = castRayTo(target.position)
@@ -174,19 +177,23 @@ open class SpriteLevelEntity(
 
 open class LevelEntity(
     val level: LevelComponent<*>,
-    position: GridPositionComponent = GridPositionComponentDefault(),
+    position: LevelDynamicComponent = LevelDynamicComponentDefault(level),
     scale: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     container: Container = Container()
 ) : Entity(position, scale, container) {
 
     init {
         collisionEntities = level.entities
+        position.onLevelCollision = ::onLevelCollision
     }
+
 
     override fun destroy() {
         super.destroy()
         level.entities.remove(this)
     }
+
+    open fun onLevelCollision(xDir: Int, yDir: Int) {}
 
     fun castRayTo(target: GridPositionComponent) = castRayTo(target, level)
     fun castRayTo(target: Entity) = castRayTo(target.position)
