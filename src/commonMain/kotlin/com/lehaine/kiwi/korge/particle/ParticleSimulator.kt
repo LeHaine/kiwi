@@ -53,6 +53,11 @@ class ParticleSimulator(maxParticles: Int) {
             visible = true
             alpha = 1f
 
+            data0 = 0
+            data1 = 0
+            data2 = 0
+            data3 = 0
+
             xDelta = 0.0
             yDelta = 0.0
             scaleDelta = 0.0
