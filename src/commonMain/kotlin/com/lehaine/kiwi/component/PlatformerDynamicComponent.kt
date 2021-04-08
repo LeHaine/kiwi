@@ -31,6 +31,7 @@ class PlatformerDynamicComponentDefault(
     override var velocityY: Double = 0.0
     override var frictionX: Double = 0.82
     override var frictionY: Double = 0.82
+    override var maxGridMovementPercent: Double = 0.33
 
     override var width: Double = 16.0
     override var height: Double = 16.0

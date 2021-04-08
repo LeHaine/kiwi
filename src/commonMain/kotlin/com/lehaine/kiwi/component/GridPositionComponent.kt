@@ -28,11 +28,6 @@ interface GridPositionComponent : Component {
     val left get() = px - anchorX * width
 
     fun updateGridPosition(tmod: Double) {
-        updateX(tmod)
-        updateY(tmod)
-    }
-
-    fun updateX(tmod: Double) {
         while (xr > 1) {
             xr--
             cx++
@@ -41,9 +36,7 @@ interface GridPositionComponent : Component {
             xr++
             cx--
         }
-    }
 
-    fun updateY(tmod: Double) {
         while (yr > 1) {
             yr--
             cy++
