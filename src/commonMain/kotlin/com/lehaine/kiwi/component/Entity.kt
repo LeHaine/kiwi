@@ -18,6 +18,7 @@ open class Entity(
     val container: Container = Container()
 ) : UpdatableComponent {
     private val collisionState = mutableMapOf<Entity, Boolean>()
+    private val collisionPairs = hashSetOf<Entity>()
 
     var enableCollisionChecks = false
 
@@ -50,23 +51,34 @@ open class Entity(
 
         if (enableCollisionChecks) {
             container.run {
-                // TODO optimize this to prevent checks against pairs multiple times
                 // TODO maybe move away from checking collision with views and use own calculations
+                collisionPairs.clear()
                 collisionEntities.fastForEach {
-                    if (this@Entity != it && it.enableCollisionChecks) {
+                    if (this@Entity != it
+                        && it.enableCollisionChecks
+                        && !collisionPairs.contains(it)
+                    ) {
                         if (collidesWithShape(it.container)) {
                             if (collisionState[it] == true) {
                                 onCollisionUpdate(it)
+                                it.onCollisionUpdate(this@Entity)
+                                it.collisionState[this@Entity] = true
                             } else {
                                 // we only need to call it once
                                 onCollisionEnter(it)
+                                it.onCollisionEnter(this@Entity)
                                 collisionState[it] = true
+                                it.collisionState[this@Entity] = true
                             }
                             lastEntityCollided = it
                         } else if (collisionState[it] == true) {
                             onCollisionExit(it)
+                            it.onCollisionExit(this@Entity)
                             collisionState[it] = false
+                            it.collisionState[this@Entity] = false
                         }
+
+                        it.collisionPairs.add(this@Entity)
                     }
                 }
             }
