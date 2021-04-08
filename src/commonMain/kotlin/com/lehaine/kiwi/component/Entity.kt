@@ -154,11 +154,10 @@ open class SpriteEntity(
 
     protected fun syncSprite() {
         val sprite = spriteComponent.sprite
-        sprite.scaleX = this.spriteComponent.dir.toDouble() * scaleComponent.scaleX * scaleComponent.stretchX
+        sprite.scaleX = spriteComponent.dir.toDouble() * scaleComponent.scaleX * scaleComponent.stretchX
         sprite.scaleY = scaleComponent.scaleY * scaleComponent.stretchY
     }
 }
-
 
 open class SpriteLevelEntity(
     open val level: LevelComponent<*>,
@@ -185,6 +184,11 @@ open class SpriteLevelEntity(
     fun castRayTo(target: Entity) = castRayTo(target.gridPositionComponent)
 }
 
+fun <T : SpriteLevelEntity> T.addToLevel(): T {
+    level.entities += this
+    return this
+}
+
 open class LevelEntity(
     open val level: LevelComponent<*>,
     levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(level),
@@ -198,7 +202,6 @@ open class LevelEntity(
         levelDynamicComponent.onLevelCollision = ::onLevelCollision
     }
 
-
     override fun destroy() {
         super.destroy()
         level.entities.remove(this)
@@ -209,3 +212,9 @@ open class LevelEntity(
     fun castRayTo(target: GridPositionComponent) = castRayTo(target, level)
     fun castRayTo(target: Entity) = castRayTo(target.gridPositionComponent)
 }
+
+fun <T : LevelEntity> T.addToLevel(): T {
+    level.entities += this
+    return this
+}
+
