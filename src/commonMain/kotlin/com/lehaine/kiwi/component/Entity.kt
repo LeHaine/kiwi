@@ -24,11 +24,7 @@ open class Entity(
     var lastEntityCollided: Entity? = null
         private set
 
-    var collisionEntities: List<Entity> = listOf()
-        set(value) {
-            field = value
-            collisionState.clear()
-        }
+    open val collisionEntities by lazy { listOf<Entity>() }
 
     var destroyed = false
         private set
@@ -165,15 +161,16 @@ open class SpriteEntity(
 
 
 open class SpriteLevelEntity(
-    val level: LevelComponent<*>,
+    open val level: LevelComponent<*>,
     spriteComponent: SpriteComponent = SpriteComponentDefault(),
     levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(level),
     scaleComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     container: Container = Container()
 ) : SpriteEntity(spriteComponent, levelDynamicComponent, scaleComponent, container) {
 
+    override val collisionEntities: List<Entity> by lazy { level.entities }
+
     init {
-        collisionEntities = level.entities
         levelDynamicComponent.onLevelCollision = ::onLevelCollision
     }
 
@@ -189,14 +186,15 @@ open class SpriteLevelEntity(
 }
 
 open class LevelEntity(
-    val level: LevelComponent<*>,
+    open val level: LevelComponent<*>,
     levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(level),
     scaleAndStretchComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     container: Container = Container()
 ) : Entity(levelDynamicComponent, scaleAndStretchComponent, container) {
 
+    override val collisionEntities: List<Entity> by lazy { level.entities }
+
     init {
-        collisionEntities = level.entities
         levelDynamicComponent.onLevelCollision = ::onLevelCollision
     }
 
