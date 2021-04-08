@@ -20,14 +20,7 @@ interface DynamicComponent : GridPositionComponent {
             xr += step
 
             checkXCollision(tmod)
-            while (xr > 1) {
-                xr--
-                cx++
-            }
-            while (xr < 0) {
-                xr++
-                cx--
-            }
+            super.updateX(tmod)
             steps--
         }
 
@@ -44,14 +37,7 @@ interface DynamicComponent : GridPositionComponent {
         while (steps > 0) {
             yr += step
             checkYCollision(tmod)
-            while (yr > 1) {
-                yr--
-                cy++
-            }
-            while (yr < 0) {
-                yr++
-                cy--
-            }
+            super.updateY(tmod)
             steps--
         }
         velocityY *= frictionY.pow(tmod)

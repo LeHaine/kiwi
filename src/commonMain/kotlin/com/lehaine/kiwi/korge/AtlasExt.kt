@@ -1,4 +1,4 @@
-package com.lehaine.kiwi
+package com.lehaine.kiwi.korge
 
 import com.soywiz.korim.atlas.Atlas
 

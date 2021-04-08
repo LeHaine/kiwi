@@ -1,5 +1,7 @@
-package com.lehaine.kiwi
+package com.lehaine.kiwi.korge.view
 
+import com.lehaine.kiwi.dist
+import com.lehaine.kiwi.korge.cd
 import com.soywiz.klock.TimeSpan
 import com.soywiz.klock.milliseconds
 import com.soywiz.klock.seconds

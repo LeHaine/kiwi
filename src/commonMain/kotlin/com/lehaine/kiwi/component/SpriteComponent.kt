@@ -1,54 +1,20 @@
 package com.lehaine.kiwi.component
 
-import com.lehaine.kiwi.EnhancedSprite
-import com.lehaine.kiwi.enhancedSprite
-import com.soywiz.korge.view.Container
 
-interface SpriteComponent : DrawableComponent, ScaleAndStretchComponent {
+import com.lehaine.kiwi.korge.view.EnhancedSprite
 
-    fun updateSprite()
+interface SpriteComponent {
+    var dir: Int
+    val sprite: EnhancedSprite
 
     companion object {
-        operator fun invoke(container: Container, anchorX: Double, anchorY: Double): SpriteComponent {
-            return SpriteComponentDefault(container, anchorX, anchorY)
+        operator fun invoke(anchorX: Double = 0.5, anchorY: Double = 0.5): SpriteComponent {
+            return SpriteComponentDefault(anchorX, anchorY)
         }
     }
 }
 
-class SpriteComponentDefault(container: Container, anchorX: Double, anchorY: Double) : SpriteComponent {
-    override var dir = 1
-    override val sprite: EnhancedSprite = container.enhancedSprite {
-        smoothing = false
-        this.anchorX = anchorX
-        this.anchorY = anchorY
-    }
-    private var _stretchX = 1.0
-    private var _stretchY = 1.0
-
-    override var stretchX: Double
-        get() = _stretchX
-        set(value) {
-            _stretchX = value
-            _stretchY = 2 - value
-        }
-    override var stretchY: Double
-        get() = _stretchY
-        set(value) {
-            _stretchX = 2 - value
-            _stretchY = value
-        }
-
-    override var scaleX = 1.0
-    override var scaleY = 1.0
-
-    override fun updateStretchAndScale() {
-        _stretchX += (1 - _stretchX) * 0.2
-        _stretchY += (1 - _stretchY) * 0.2
-    }
-
-    override fun updateSprite() {
-        updateStretchAndScale()
-        sprite.scaleX = dir.toDouble() * scaleX * stretchX
-        sprite.scaleY = scaleY * stretchY
-    }
+class SpriteComponentDefault(anchorX: Double = 0.5, anchorY: Double = 0.5) : SpriteComponent {
+    override var dir = 0
+    override val sprite: EnhancedSprite = EnhancedSprite(smoothing = false, anchorX = anchorX, anchorY = anchorY)
 }

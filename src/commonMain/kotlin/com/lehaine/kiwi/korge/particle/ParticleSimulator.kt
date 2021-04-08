@@ -1,4 +1,4 @@
-package com.lehaine.kiwi.particle
+package com.lehaine.kiwi.korge.particle
 
 import com.soywiz.kds.iterators.fastForEach
 import com.soywiz.klock.DateTime
