@@ -62,7 +62,6 @@ open class Entity(
                             if (collisionState[it] == true) {
                                 onCollisionUpdate(it)
                                 it.onCollisionUpdate(this@Entity)
-                                it.collisionState[this@Entity] = true
                             } else {
                                 // we only need to call it once
                                 onCollisionEnter(it)
@@ -71,6 +70,7 @@ open class Entity(
                                 it.collisionState[this@Entity] = true
                             }
                             lastEntityCollided = it
+                            it.lastEntityCollided = this@Entity
                         } else if (collisionState[it] == true) {
                             onCollisionExit(it)
                             it.onCollisionExit(this@Entity)
@@ -78,6 +78,7 @@ open class Entity(
                             it.collisionState[this@Entity] = false
                         }
 
+                        collisionPairs.add(it)
                         it.collisionPairs.add(this@Entity)
                     }
                 }
