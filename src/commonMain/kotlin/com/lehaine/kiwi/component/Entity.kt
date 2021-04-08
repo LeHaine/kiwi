@@ -5,6 +5,7 @@ import com.lehaine.kiwi.korge.cooldown
 import com.soywiz.kds.iterators.fastForEach
 import com.soywiz.klock.TimeSpan
 import com.soywiz.korge.view.Container
+import com.soywiz.korge.view.addTo
 import com.soywiz.korge.view.collidesWithShape
 import com.soywiz.korge.view.hitShape
 import com.soywiz.korio.lang.Closeable
@@ -109,6 +110,10 @@ open class Entity(
         position.castRayTo(target) { cx, cy ->
             !level.hasCollision(cx, cy) || position.cx == cx && position.cy == cy
         }
+
+    fun addTo(parent: Container) {
+        container.addTo(parent)
+    }
 
     protected fun syncViewPosition() {
         container.x = position.px
