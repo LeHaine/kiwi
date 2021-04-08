@@ -57,7 +57,7 @@ open class Entity(
                 // TODO optimize this to prevent checks against pairs multiple times
                 // TODO maybe move away from checking collision with views and use own calculations
                 collisionEntities.fastForEach {
-                    if (this@Entity != it) {
+                    if (this@Entity != it && it.enableCollisionChecks) {
                         if (collidesWithShape(it.container)) {
                             if (collisionState[it] == true) {
                                 onCollisionUpdate(it)
