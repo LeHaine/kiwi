@@ -47,8 +47,11 @@ open class Entity(
 
     override fun postUpdate(dt: TimeSpan) {
         syncViewPosition()
-        scaleComponent.updateStretchAndScale()
+        scaleComponent.updateStretchAndScale(tmod)
+        checkCollisions()
+    }
 
+    protected fun checkCollisions() {
         if (enableCollisionChecks) {
             container.run {
                 // TODO maybe move away from checking collision with views and use own calculations
@@ -85,7 +88,6 @@ open class Entity(
             }
         }
     }
-
 
     open fun destroy() {
         if (destroyed) return
@@ -188,14 +190,15 @@ open class SpriteEntity(
     }
 
     override fun postUpdate(dt: TimeSpan) {
-        super.postUpdate(dt)
+        syncViewPosition()
         syncSprite()
+        scaleComponent.updateStretchAndScale(tmod)
+        checkCollisions()
     }
 
     protected fun syncSprite() {
-        val sprite = spriteComponent.sprite
-        sprite.scaleX = spriteComponent.dir.toDouble() * scaleComponent.scaleX * scaleComponent.stretchX
-        sprite.scaleY = scaleComponent.scaleY * scaleComponent.stretchY
+        spriteComponent.sprite.scaleX = spriteComponent.dir.toDouble() * scaleComponent.scaleX * scaleComponent.stretchX
+        spriteComponent.sprite.scaleY = scaleComponent.scaleY * scaleComponent.stretchY
     }
 }
 

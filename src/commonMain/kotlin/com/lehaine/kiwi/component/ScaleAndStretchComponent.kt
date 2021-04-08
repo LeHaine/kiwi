@@ -1,5 +1,7 @@
 package com.lehaine.kiwi.component
 
+import kotlin.math.min
+
 interface ScaleAndStretchComponent : Component {
     var stretchX: Double
     var stretchY: Double
@@ -7,7 +9,7 @@ interface ScaleAndStretchComponent : Component {
     var scaleX: Double
     var scaleY: Double
 
-    fun updateStretchAndScale()
+    fun updateStretchAndScale(tmod: Double)
 
     companion object {
         operator fun invoke(): ScaleAndStretchComponent {
@@ -36,8 +38,8 @@ class ScaleAndStretchComponentDefault : ScaleAndStretchComponent {
     override var scaleX = 1.0
     override var scaleY = 1.0
 
-    override fun updateStretchAndScale() {
-        _stretchX += (1 - _stretchX) * 0.2
-        _stretchY += (1 - _stretchY) * 0.2
+    override fun updateStretchAndScale(tmod: Double) {
+        _stretchX += (1 - _stretchX) * min(1.0, 0.2 * tmod)
+        _stretchY += (1 - _stretchY) * min(1.0, 0.2 * tmod)
     }
 }
