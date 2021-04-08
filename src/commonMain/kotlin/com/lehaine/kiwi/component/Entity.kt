@@ -111,8 +111,9 @@ open class Entity(
             !level.hasCollision(cx, cy) || position.cx == cx && position.cy == cy
         }
 
-    fun addTo(parent: Container) {
+    fun addTo(parent: Container): Entity {
         container.addTo(parent)
+        return this
     }
 
     protected fun syncViewPosition() {
