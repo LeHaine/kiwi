@@ -1,6 +1,6 @@
 package com.lehaine.kiwi.component
 
-import com.lehaine.kiwi.component.ext.castRayTo
+import com.lehaine.kiwi.component.ext.*
 import com.lehaine.kiwi.korge.cooldown
 import com.soywiz.kds.iterators.fastForEach
 import com.soywiz.klock.TimeSpan
@@ -106,6 +106,33 @@ open class Entity(
         gridPositionComponent.castRayTo(target) { cx, cy ->
             !level.hasCollision(cx, cy) || gridPositionComponent.cx == cx && gridPositionComponent.cy == cy
         }
+
+    fun dirTo(target: Entity) = gridPositionComponent.dirTo(target.gridPositionComponent)
+
+    fun distGridTo(target: Entity) =
+        gridPositionComponent.distGridTo(
+            target.gridPositionComponent.cx,
+            target.gridPositionComponent.cy,
+            target.gridPositionComponent.xr,
+            target.gridPositionComponent.yr
+        )
+
+    fun distPxTo(target: Entity) =
+        gridPositionComponent.distPxTo(target.gridPositionComponent.px, target.gridPositionComponent.py)
+
+    fun angleTo(target: Entity) =
+        gridPositionComponent.angleTo(target.gridPositionComponent.centerX, target.gridPositionComponent.centerY)
+
+    fun toPixelPosition(target: Entity) =
+        gridPositionComponent.toPixelPosition(target.gridPositionComponent.px, target.gridPositionComponent.py)
+
+    fun toGridPosition(target: Entity) =
+        gridPositionComponent.toGridPosition(
+            target.gridPositionComponent.cx,
+            target.gridPositionComponent.cy,
+            target.gridPositionComponent.xr,
+            target.gridPositionComponent.yr
+        )
 
     protected fun syncViewPosition() {
         container.x = gridPositionComponent.px
