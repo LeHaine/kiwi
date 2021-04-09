@@ -96,7 +96,10 @@ class EnhancedSprite(
     private var lastAnimation: SpriteAnimation? = null
     private var lastReversed: Boolean = false
     private var lastLooped: Boolean = false
+    private var lastOnAnimationEndCallback: (() -> Unit)? = null
     private var overlapPlaying: Boolean = false
+
+    private var onAnimationEndCallback: (() -> Unit)? = null
 
     val anim = AnimationManager()
 
@@ -116,15 +119,17 @@ class EnhancedSprite(
 
     fun playOverlap(
         spriteAnimation: SpriteAnimation,
-        spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation)
+        spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
+        onAnimationEnd: (() -> Unit)? = null
     ) {
         if (!overlapPlaying) {
+            lastOnAnimationEndCallback = onAnimationEndCallback
             lastAnimation = currentAnimation
             lastLooped = animationLooped
             lastReversed = reversed
         }
         overlapPlaying = true
-        playAnimation(spriteAnimation, spriteDisplayTime, startFrame = 0)
+        playAnimation(spriteAnimation, spriteDisplayTime, startFrame = 0, onAnimationEnd = onAnimationEnd)
     }
 
     fun playOverlap(bmpSlice: BmpSlice, spriteDisplayTime: TimeSpan = 50.milliseconds, numFrames: Int = 1) =
@@ -137,75 +142,98 @@ class EnhancedSprite(
         spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
         startFrame: Int = -1,
         endFrame: Int = 0,
-        reversed: Boolean = false
-    ) = updateCurrentAnimation(
-        spriteAnimation = spriteAnimation,
-        spriteDisplayTime = spriteDisplayTime,
-        animationCyclesRequested = times,
-        startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
-        endFrame = endFrame,
-        reversed = reversed,
-        type = AnimationType.STANDARD
-    )
+        reversed: Boolean = false,
+        onAnimationEnd: (() -> Unit)? = null
+    ) {
+        onAnimationEndCallback = onAnimationEnd
+        updateCurrentAnimation(
+            spriteAnimation = spriteAnimation,
+            spriteDisplayTime = spriteDisplayTime,
+            animationCyclesRequested = times,
+            startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
+            endFrame = endFrame,
+            reversed = reversed,
+            type = AnimationType.STANDARD
+        )
+    }
 
     fun playAnimation(
         spriteAnimation: SpriteAnimation? = currentAnimation,
         spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
         startFrame: Int = -1,
         endFrame: Int = 0,
-        reversed: Boolean = false
-    ) = updateCurrentAnimation(
-        spriteAnimation = spriteAnimation,
-        spriteDisplayTime = spriteDisplayTime,
-        animationCyclesRequested = 1,
-        startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
-        endFrame = endFrame,
-        reversed = reversed,
-        type = AnimationType.STANDARD
-    )
+        reversed: Boolean = false,
+        onAnimationEnd: (() -> Unit)? = null
+    ) {
+        onAnimationEndCallback = onAnimationEnd
+        updateCurrentAnimation(
+            spriteAnimation = spriteAnimation,
+            spriteDisplayTime = spriteDisplayTime,
+            animationCyclesRequested = 1,
+            startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
+            endFrame = endFrame,
+            reversed = reversed,
+            type = AnimationType.STANDARD
+        )
+    }
 
     fun playAnimationForDuration(
         duration: TimeSpan,
         spriteAnimation: SpriteAnimation? = currentAnimation,
         spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
         startFrame: Int = -1,
-        reversed: Boolean = false
-    ) = updateCurrentAnimation(
-        spriteAnimation = spriteAnimation,
-        spriteDisplayTime = spriteDisplayTime,
-        duration = duration,
-        startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
-        reversed = reversed,
-        type = AnimationType.DURATION
-    )
+        reversed: Boolean = false,
+        onAnimationEnd: (() -> Unit)? = null
+    ) {
+        onAnimationEndCallback = onAnimationEnd
+        updateCurrentAnimation(
+            spriteAnimation = spriteAnimation,
+            spriteDisplayTime = spriteDisplayTime,
+            duration = duration,
+            startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
+            reversed = reversed,
+            type = AnimationType.DURATION
+        )
+    }
 
     fun playAnimationLooped(
         spriteAnimation: SpriteAnimation? = currentAnimation,
         spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
         startFrame: Int = -1,
-        reversed: Boolean = false
-    ) = updateCurrentAnimation(
-        spriteAnimation = spriteAnimation,
-        spriteDisplayTime = spriteDisplayTime,
-        startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
-        looped = true,
-        reversed = reversed,
-        type = AnimationType.LOOPED
-    )
+        reversed: Boolean = false,
+        onAnimationEnd: (() -> Unit)? = null
+    ) {
+        onAnimationEndCallback = onAnimationEnd
+        updateCurrentAnimation(
+            spriteAnimation = spriteAnimation,
+            spriteDisplayTime = spriteDisplayTime,
+            startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
+            looped = true,
+            reversed = reversed,
+            type = AnimationType.LOOPED
+        )
+    }
+
 
     fun stopAnimation() {
         animationRequested = false
         triggerEvent(_onAnimationStopped)
+        onAnimationEndCallback?.invoke()
         if (overlapPlaying) {
             overlapPlaying = false
             if (lastLooped) {
-                playAnimationLooped(lastAnimation, reversed = lastReversed)
+                playAnimationLooped(
+                    lastAnimation,
+                    reversed = lastReversed,
+                    onAnimationEnd = lastOnAnimationEndCallback
+                )
             } else {
-                playAnimation(lastAnimation, reversed = lastReversed)
+                playAnimation(lastAnimation, reversed = lastReversed, onAnimationEnd = lastOnAnimationEndCallback)
             }
             lastAnimation = null
             lastReversed = false
             lastLooped = false
+            lastOnAnimationEndCallback = null
         }
     }
 
