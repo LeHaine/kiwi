@@ -23,7 +23,7 @@ interface GridPositionComponent : Component {
     val centerX get() = px + (0.5 - anchorX) * gridCellSize
     val centerY get() = py + (0.5 - anchorY) * gridCellSize
     val top get() = py - anchorY * height
-    val right get() = px + (1 - px) * width
+    val right get() = px + (1 - anchorX) * width
     val bottom get() = py + (1 - anchorY) * height
     val left get() = px - anchorX * width
 
