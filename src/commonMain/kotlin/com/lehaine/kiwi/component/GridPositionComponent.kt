@@ -2,8 +2,9 @@ package com.lehaine.kiwi.component
 
 import com.soywiz.korge.debug.uiCollapsibleSection
 import com.soywiz.korge.debug.uiEditableValue
-import com.soywiz.korma.geom.Rectangle
 import com.soywiz.korui.UiContainer
+import kotlin.math.max
+import kotlin.math.min
 
 interface GridPositionComponent : Component {
     var cx: Int
@@ -17,6 +18,9 @@ interface GridPositionComponent : Component {
 
     var anchorX: Double
     var anchorY: Double
+
+    val innerRadius get() = min(width, height) * 0.5
+    val outerRadius get() = max(width, height) * 0.5
 
     val px get() = (cx + xr) * gridCellSize
     val py get() = (cy + yr) * gridCellSize

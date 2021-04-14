@@ -6,11 +6,7 @@ import com.soywiz.kds.iterators.fastForEach
 import com.soywiz.klock.TimeSpan
 import com.soywiz.korge.view.Container
 import com.soywiz.korge.view.addTo
-import com.soywiz.korge.view.collidesWithShape
-import com.soywiz.korge.view.hitShape
 import com.soywiz.korio.lang.Closeable
-import com.soywiz.korma.geom.vector.VectorBuilder
-import com.soywiz.korma.geom.vector.rect
 
 open class Entity(
     val gridPositionComponent: GridPositionComponent = GridPositionComponentDefault(),
@@ -61,7 +57,7 @@ open class Entity(
                         && it.enableCollisionChecks
                         && !collisionPairs.contains(it)
                     ) {
-                        if (collidesWithShape(it.container)) {
+                        if (isCollidingWith(it)) {
                             if (collisionState[it] == true) {
                                 onCollisionUpdate(it)
                                 it.onCollisionUpdate(this@Entity)
@@ -88,6 +84,34 @@ open class Entity(
             }
         }
     }
+
+    /**
+     * AABB check
+     */
+    fun isCollidingWith(from: Entity): Boolean {
+        val lx = gridPositionComponent.left
+        val ly = gridPositionComponent.top
+        val rx = gridPositionComponent.right
+        val ry = gridPositionComponent.bottom
+
+        val lx2 = from.gridPositionComponent.left
+        val ly2 = from.gridPositionComponent.top
+        val rx2 = from.gridPositionComponent.right
+        val ry2 = from.gridPositionComponent.bottom
+
+        if (lx > rx2 || lx2 > rx) {
+            return false
+        }
+
+        if (ly > ry2 || ly2 > ry) {
+            return false
+        }
+
+        return true
+    }
+
+    fun isCollidingWithInnerCircle(from: Entity) = distPxTo(from) <= gridPositionComponent.innerRadius
+    fun isCollidingWithOuterCircle(from: Entity) = distPxTo(from) <= gridPositionComponent.outerRadius
 
     open fun destroy() {
         if (destroyed) return
@@ -152,24 +176,6 @@ open class Entity(
     protected fun syncViewPosition() {
         container.x = gridPositionComponent.px
         container.y = gridPositionComponent.py
-    }
-
-    protected inline fun addShape(crossinline block: (VectorBuilder.() -> Unit)) {
-        container.hitShape(block)
-    }
-
-    protected fun addRectShape(
-        anchorX: Double = 0.5,
-        anchorY: Double = 0.5
-    ) {
-        addShape {
-            rect(
-                gridPositionComponent.width * anchorX,
-                gridPositionComponent.height * anchorY,
-                gridPositionComponent.width,
-                gridPositionComponent.height
-            )
-        }
     }
 }
 
