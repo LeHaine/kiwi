@@ -8,6 +8,7 @@ internal data class DecisionElement<T>(val value: T) {
     var out = false
 }
 
+// https://github.com/deepnight/deepnightLibs/blob/master/src/dn/DecisionHelper.hx
 class DecisionHelper<T>(initialData: ArrayList<T>) {
     @PublishedApi
     internal val all = arrayListOf<DecisionElement<T>>().apply {

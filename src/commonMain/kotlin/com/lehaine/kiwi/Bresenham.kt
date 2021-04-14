@@ -7,6 +7,8 @@ import kotlin.math.floor
 /**
  * Cast a ray from a point to another point and checks if each point along
  * the way can be passed via the [rayCanPass] parameter.
+ *
+ * https://github.com/deepnight/deepnightLibs/blob/master/src/dn/Bresenham.hx
  */
 fun castRay(fromX: Int, fromY: Int, toX: Int, toY: Int, rayCanPass: (Int, Int) -> Boolean): Boolean {
     var x0 = fromX
