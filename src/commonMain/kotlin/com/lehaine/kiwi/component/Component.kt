@@ -1,3 +1,10 @@
 package com.lehaine.kiwi.component
 
-interface Component
+import com.soywiz.korui.UiContainer
+
+interface Component {
+
+    fun buildDebugInfo(container: UiContainer) {
+
+    }
+}

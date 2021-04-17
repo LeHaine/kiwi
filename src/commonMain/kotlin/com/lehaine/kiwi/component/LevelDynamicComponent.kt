@@ -1,5 +1,8 @@
 package com.lehaine.kiwi.component
 
+import com.soywiz.korge.debug.uiCollapsibleSection
+import com.soywiz.korge.debug.uiEditableValue
+import com.soywiz.korui.UiContainer
 import kotlin.math.floor
 import kotlin.math.pow
 
@@ -10,6 +13,41 @@ interface LevelDynamicComponent : DynamicComponent {
     var topCollisionRatio: Double
     var useTopCollisionRatio: Boolean
     var onLevelCollision: ((xDir: Int, yDir: Int) -> Unit)?
+
+    override fun buildDebugInfo(container: UiContainer) {
+        super.buildDebugInfo(container)
+
+        container.uiCollapsibleSection("Level Dynamic Component") {
+            uiEditableValue(
+                this@LevelDynamicComponent::leftCollisionRatio,
+                name = "Left Collision Ratio",
+                min = 0.0,
+                max = 1.0
+            )
+            uiEditableValue(
+                this@LevelDynamicComponent::rightCollisionRatio,
+                name = "Right Collision Ratio",
+                min = 0.0,
+                max = 1.0
+            )
+            uiEditableValue(
+                this@LevelDynamicComponent::useTopCollisionRatio,
+                name = "Use Top Collision Ratio"
+            )
+            uiEditableValue(
+                this@LevelDynamicComponent::topCollisionRatio,
+                name = "Top Collision Ratio",
+                min = 0.0,
+                max = 1.0
+            )
+            uiEditableValue(
+                this@LevelDynamicComponent::bottomCollisionRatio,
+                name = "Bottom Collision Ratio",
+                min = 0.0,
+                max = 1.0
+            )
+        }
+    }
 }
 
 open class LevelDynamicComponentDefault(

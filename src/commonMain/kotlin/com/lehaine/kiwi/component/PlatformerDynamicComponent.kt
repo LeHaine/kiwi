@@ -1,11 +1,26 @@
 package com.lehaine.kiwi.component
 
+import com.soywiz.korge.debug.uiCollapsibleSection
+import com.soywiz.korge.debug.uiEditableValue
+import com.soywiz.korui.UiContainer
 import kotlin.math.floor
 import kotlin.math.pow
 
 interface PlatformerDynamicComponent : LevelDynamicComponent {
     val onGround: Boolean
     var hasGravity: Boolean
+
+
+    override fun buildDebugInfo(container: UiContainer) {
+        super.buildDebugInfo(container)
+
+        container.uiCollapsibleSection("Platformer Dynamic Component") {
+            uiEditableValue(
+                this@PlatformerDynamicComponent::hasGravity,
+                name = "has gravity",
+            )
+        }
+    }
 }
 
 class PlatformerDynamicComponentDefault(

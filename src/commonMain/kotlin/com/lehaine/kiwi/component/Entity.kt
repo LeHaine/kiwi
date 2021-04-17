@@ -2,6 +2,7 @@ package com.lehaine.kiwi.component
 
 import com.lehaine.kiwi.component.ext.*
 import com.lehaine.kiwi.korge.cooldown
+import com.lehaine.kiwi.korge.view.ComponentContainer
 import com.soywiz.kds.iterators.fastForEach
 import com.soywiz.klock.TimeSpan
 import com.soywiz.korge.view.Container
@@ -11,7 +12,7 @@ import com.soywiz.korio.lang.Closeable
 open class Entity(
     val gridPositionComponent: GridPositionComponent = GridPositionComponentDefault(),
     val scaleComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
-    val container: Container = Container()
+    val container: Container = ComponentContainer(listOf(gridPositionComponent, scaleComponent))
 ) : UpdatableComponent {
     private val collisionState = mutableMapOf<Entity, Boolean>()
     private val collisionPairs = hashSetOf<Entity>()
@@ -252,7 +253,7 @@ open class SpriteEntity(
     val spriteComponent: SpriteComponent = SpriteComponentDefault(),
     gridPositionComponent: GridPositionComponent = GridPositionComponentDefault(),
     scaleAndStretchComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
-    container: Container = Container()
+    container: Container = ComponentContainer(listOf(spriteComponent, gridPositionComponent, scaleAndStretchComponent))
 ) : Entity(gridPositionComponent, scaleAndStretchComponent, container) {
 
     init {
@@ -277,7 +278,7 @@ open class SpriteLevelEntity(
     spriteComponent: SpriteComponent = SpriteComponentDefault(),
     levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(level),
     scaleComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
-    container: Container = Container()
+    container: Container = ComponentContainer(listOf(spriteComponent, levelDynamicComponent, scaleComponent))
 ) : SpriteEntity(spriteComponent, levelDynamicComponent, scaleComponent, container) {
 
     override val collisionEntities: List<Entity> by lazy { level.entities }
@@ -313,7 +314,7 @@ open class LevelEntity(
     open val level: LevelComponent<*>,
     levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(level),
     scaleAndStretchComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
-    container: Container = Container()
+    container: Container = ComponentContainer(listOf(level, levelDynamicComponent, scaleAndStretchComponent))
 ) : Entity(levelDynamicComponent, scaleAndStretchComponent, container) {
 
     override val collisionEntities: List<Entity> by lazy { level.entities }

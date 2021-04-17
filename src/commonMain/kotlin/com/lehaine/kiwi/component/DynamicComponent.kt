@@ -1,5 +1,8 @@
 package com.lehaine.kiwi.component
 
+import com.soywiz.korge.debug.uiCollapsibleSection
+import com.soywiz.korge.debug.uiEditableValue
+import com.soywiz.korui.UiContainer
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.pow
@@ -81,6 +84,46 @@ interface DynamicComponent : GridPositionComponent {
 
     fun checkXCollision(tmod: Double) {}
     fun checkYCollision(tmod: Double) {}
+
+
+    override fun buildDebugInfo(container: UiContainer) {
+        super.buildDebugInfo(container)
+
+        container.uiCollapsibleSection("Dynamic Component") {
+            uiEditableValue(
+                this@DynamicComponent::gravityX,
+                name = "Gravity X",
+            )
+            uiEditableValue(
+                this@DynamicComponent::gravityY,
+                name = "Gravity Y"
+            )
+            uiEditableValue(
+                this@DynamicComponent::gravityMultiplier,
+                name = "Gravity Multiplier"
+            )
+            uiEditableValue(
+                this@DynamicComponent::velocityX,
+                name = "Velocity X"
+            )
+            uiEditableValue(
+                this@DynamicComponent::velocityY,
+                name = "Velocity Y"
+            )
+            uiEditableValue(
+                this@DynamicComponent::frictionX,
+                name = "Friction X"
+            )
+            uiEditableValue(
+                this@DynamicComponent::frictionY,
+                name = "Friction Y"
+            )
+            uiEditableValue(
+                this@DynamicComponent::maxGridMovementPercent,
+                name = "Max Grid Movement"
+            )
+        }
+    }
 
     companion object {
         operator fun invoke(): DynamicComponent {

@@ -2,12 +2,26 @@ package com.lehaine.kiwi.component
 
 
 import com.lehaine.kiwi.korge.view.EnhancedSprite
+import com.soywiz.korge.debug.uiCollapsibleSection
+import com.soywiz.korge.debug.uiEditableValue
 import com.soywiz.korim.bitmap.Bitmaps
 import com.soywiz.korim.bitmap.BmpSlice
+import com.soywiz.korui.UiContainer
 
-interface SpriteComponent {
+interface SpriteComponent : Component {
     var dir: Int
     val sprite: EnhancedSprite
+
+    override fun buildDebugInfo(container: UiContainer) {
+        container.uiCollapsibleSection("Sprite Component") {
+            uiEditableValue(
+                this@SpriteComponent::dir,
+                name = "Dir",
+                min = -1,
+                max = 1
+            )
+        }
+    }
 
     companion object {
         operator fun invoke(

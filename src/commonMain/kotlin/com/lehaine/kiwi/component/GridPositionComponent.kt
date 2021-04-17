@@ -57,7 +57,7 @@ interface GridPositionComponent : Component {
     }
 
 
-    fun createDebugInfo(container: UiContainer) {
+    override fun buildDebugInfo(container: UiContainer) {
         container.uiCollapsibleSection("Grid Position") {
             uiEditableValue(this@GridPositionComponent::gridCellSize, name = "Grid Cell Size", min = 1)
             uiEditableValue(

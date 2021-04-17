@@ -1,5 +1,8 @@
 package com.lehaine.kiwi.component
 
+import com.soywiz.korge.debug.uiCollapsibleSection
+import com.soywiz.korge.debug.uiEditableValue
+import com.soywiz.korui.UiContainer
 import kotlin.math.min
 
 interface ScaleAndStretchComponent : Component {
@@ -10,6 +13,27 @@ interface ScaleAndStretchComponent : Component {
     var scaleY: Double
 
     fun updateStretchAndScale(tmod: Double)
+
+    override fun buildDebugInfo(container: UiContainer) {
+        container.uiCollapsibleSection("Scale and Stretch Component") {
+            uiEditableValue(
+                this@ScaleAndStretchComponent::stretchY,
+                name = "Stretch X",
+            )
+            uiEditableValue(
+                this@ScaleAndStretchComponent::stretchY,
+                name = "Stretch Y"
+            )
+            uiEditableValue(
+                this@ScaleAndStretchComponent::scaleX,
+                name = "Scale X",
+            )
+            uiEditableValue(
+                this@ScaleAndStretchComponent::scaleY,
+                name = "Scale Y"
+            )
+        }
+    }
 
     companion object {
         operator fun invoke(): ScaleAndStretchComponent {
