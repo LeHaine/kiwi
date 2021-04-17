@@ -95,20 +95,35 @@ open class Entity(
                 pos.left - staticPos.right
             }
 
+            // store old and restore x grid position after setting pixel position
+            // to prevent moving the entity to the next grid cell if a level collision has
+            // already occurred
+            val oldCy = pos.cy
+            val oldYr = pos.yr
             pos.toPixelPosition(
                 pos.px - xDepth,
                 pos.py
             )
+            pos.cy = oldCy
+            pos.yr = oldYr
         } else {
             val yDepth = if (pos.top < staticPos.top) {
                 pos.bottom - staticPos.top
             } else {
                 pos.top - staticPos.bottom
             }
+
+            // store old and restore y grid position after setting pixel position
+            // to prevent moving the entity to the next grid cell if a level collision has
+            // already occurred
+            val oldCx = pos.cx
+            val oldXr = pos.xr
             pos.toPixelPosition(
                 pos.px,
                 pos.py - yDepth
             )
+            pos.cx = oldCx
+            pos.xr = oldXr
         }
     }
 
