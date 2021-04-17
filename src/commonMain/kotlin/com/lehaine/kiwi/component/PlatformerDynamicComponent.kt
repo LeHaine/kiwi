@@ -24,6 +24,8 @@ class PlatformerDynamicComponentDefault(
     override var useTopCollisionRatio: Boolean = false,
     override var onLevelCollision: ((xDir: Int, yDir: Int) -> Unit)? = null
 ) : PlatformerDynamicComponent {
+    override var preXCheck: (() -> Unit)? = null
+    override var preYCheck: (() -> Unit)? = null
     override var gravityX: Double = 0.0
     override var gravityY: Double = 0.028
     override var gravityMultiplier: Double = 1.0

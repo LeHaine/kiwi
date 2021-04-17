@@ -31,7 +31,11 @@ interface GridPositionComponent : Component {
     val bottom get() = py + (1 - anchorY) * height
     val left get() = px - anchorX * width
 
+    var preXCheck: (() -> Unit)?
+    var preYCheck: (() -> Unit)?
+
     fun updateGridPosition(tmod: Double) {
+        preXCheck?.invoke()
         while (xr > 1) {
             xr--
             cx++
@@ -41,6 +45,7 @@ interface GridPositionComponent : Component {
             cx--
         }
 
+        preYCheck?.invoke()
         while (yr > 1) {
             yr--
             cy++
@@ -98,6 +103,8 @@ open class GridPositionComponentDefault(
     override var anchorY: Double = 0.5,
     override var gridCellSize: Int = 16
 ) : GridPositionComponent {
+    override var preXCheck: (() -> Unit)? = null
+    override var preYCheck: (() -> Unit)? = null
 
     override var width: Double = 16.0
     override var height: Double = 16.0

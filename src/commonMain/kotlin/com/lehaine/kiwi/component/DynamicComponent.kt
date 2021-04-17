@@ -29,6 +29,8 @@ interface DynamicComponent : GridPositionComponent {
             val stepY = velocityY * tmod / steps
             while (steps > 0) {
                 xr += stepX
+
+                preXCheck?.invoke()
                 checkXCollision(tmod)
 
                 while (xr > 1) {
@@ -41,6 +43,7 @@ interface DynamicComponent : GridPositionComponent {
                 }
 
                 yr += stepY
+                preYCheck?.invoke()
                 checkYCollision(tmod)
 
                 while (yr > 1) {
@@ -95,6 +98,8 @@ open class DynamicComponentDefault(
     override var anchorY: Double = 0.5,
     override var gridCellSize: Int = 16
 ) : DynamicComponent {
+    override var preXCheck: (() -> Unit)? = null
+    override var preYCheck: (() -> Unit)? = null
     override var gravityX: Double = 0.0
     override var gravityY: Double = 0.0
     override var gravityMultiplier: Double = 1.0

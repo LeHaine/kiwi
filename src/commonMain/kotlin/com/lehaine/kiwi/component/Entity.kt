@@ -15,6 +15,7 @@ open class Entity(
 ) : UpdatableComponent {
     private val collisionState = mutableMapOf<Entity, Boolean>()
     private val collisionPairs = hashSetOf<Entity>()
+    private val staticCollisionPairs = hashSetOf<Entity>()
 
     var enableCollisionChecks = false
 
@@ -22,6 +23,7 @@ open class Entity(
         private set
 
     open val collisionEntities by lazy { listOf<Entity>() }
+    open val staticCollisionEntities by lazy { listOf<Entity>() }
 
     var destroyed = false
         private set
@@ -31,8 +33,17 @@ open class Entity(
     val cooldown get() = container.cooldown
     val cd get() = cooldown
 
+    var static = false
+
     init {
         syncViewPosition()
+        gridPositionComponent.preXCheck = {
+            checkAndResolveStaticCollisions(true)
+        }
+
+        gridPositionComponent.preYCheck = {
+            checkAndResolveStaticCollisions(false)
+        }
     }
 
     override var tmod: Double = 1.0
@@ -47,11 +58,63 @@ open class Entity(
         checkCollisions()
     }
 
+    protected fun checkAndResolveStaticCollisions(resolveXDepth: Boolean) {
+        if (enableCollisionChecks && !static) {
+            if (resolveXDepth) staticCollisionPairs.clear()
+            container.run {
+                staticCollisionEntities.fastForEach {
+                    if (this@Entity != it
+                        && it.enableCollisionChecks
+                        && it.static // being redundant
+                        && !staticCollisionPairs.contains(it)
+                    ) {
+                        if ((resolveXDepth && isCollidingWith(it)) || (!resolveXDepth && isCollidingWith(it))) {
+                            // we check x first then y which allows us to determine which side the collision happened on
+                            resolveCollision(this@Entity, it, resolveXDepth)
+                            staticCollisionPairs.add(it)
+                            it.staticCollisionPairs.add(this@Entity)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun resolveCollision(a: Entity, b: Entity, resolveXDepth: Boolean) {
+        if (a.static && b.static) return
+        val static = if (a.static) a else b
+        val noStatic = if (a.static) b else a
+        val pos = noStatic.gridPositionComponent
+        val staticPos = static.gridPositionComponent
+
+        if (resolveXDepth) {
+            val xDepth = if (pos.left < staticPos.left) {
+                pos.right - staticPos.left
+            } else {
+                pos.left - staticPos.right
+            }
+
+            pos.toPixelPosition(
+                pos.px - xDepth,
+                pos.py
+            )
+        } else {
+            val yDepth = if (pos.top < staticPos.top) {
+                pos.bottom - staticPos.top
+            } else {
+                pos.top - staticPos.bottom
+            }
+            pos.toPixelPosition(
+                pos.px,
+                pos.py - yDepth
+            )
+        }
+    }
+
     protected fun checkCollisions() {
         if (enableCollisionChecks) {
             container.run {
-                // TODO maybe move away from checking collision with views and use own calculations
-                collisionPairs.clear()
+                collisionPairs.clear() // TODO fix clearing collision pairs from removing paired collision
                 collisionEntities.fastForEach {
                     if (this@Entity != it
                         && it.enableCollisionChecks
@@ -85,25 +148,26 @@ open class Entity(
         }
     }
 
+
     /**
      * AABB check
      */
     fun isCollidingWith(from: Entity): Boolean {
         val lx = gridPositionComponent.left
-        val ly = gridPositionComponent.top
-        val rx = gridPositionComponent.right
-        val ry = gridPositionComponent.bottom
-
         val lx2 = from.gridPositionComponent.left
-        val ly2 = from.gridPositionComponent.top
+        val rx = gridPositionComponent.right
         val rx2 = from.gridPositionComponent.right
-        val ry2 = from.gridPositionComponent.bottom
 
-        if (lx > rx2 || lx2 > rx) {
+        if (lx >= rx2 || lx2 >= rx) {
             return false
         }
 
-        if (ly > ry2 || ly2 > ry) {
+        val ly = gridPositionComponent.top
+        val ry = gridPositionComponent.bottom
+        val ly2 = from.gridPositionComponent.top
+        val ry2 = from.gridPositionComponent.bottom
+
+        if (ly >= ry2 || ly2 >= ry) {
             return false
         }
 
@@ -217,6 +281,7 @@ open class SpriteLevelEntity(
 ) : SpriteEntity(spriteComponent, levelDynamicComponent, scaleComponent, container) {
 
     override val collisionEntities: List<Entity> by lazy { level.entities }
+    override val staticCollisionEntities: List<Entity> by lazy { level.staticEntities }
 
     init {
         levelDynamicComponent.onLevelCollision = ::onLevelCollision
@@ -225,6 +290,9 @@ open class SpriteLevelEntity(
     override fun destroy() {
         super.destroy()
         level.entities.remove(this)
+        if (static) {
+            level.staticEntities.remove(this)
+        }
     }
 
     open fun onLevelCollision(xDir: Int, yDir: Int) {}
@@ -235,6 +303,9 @@ open class SpriteLevelEntity(
 
 fun <T : SpriteLevelEntity> T.addToLevel(): T {
     level.entities += this
+    if (static) {
+        level.staticEntities += this
+    }
     return this
 }
 
@@ -246,6 +317,7 @@ open class LevelEntity(
 ) : Entity(levelDynamicComponent, scaleAndStretchComponent, container) {
 
     override val collisionEntities: List<Entity> by lazy { level.entities }
+    override val staticCollisionEntities: List<Entity> by lazy { level.staticEntities }
 
     init {
         levelDynamicComponent.onLevelCollision = ::onLevelCollision
@@ -254,6 +326,9 @@ open class LevelEntity(
     override fun destroy() {
         super.destroy()
         level.entities.remove(this)
+        if (static) {
+            level.staticEntities.remove(this)
+        }
     }
 
     open fun onLevelCollision(xDir: Int, yDir: Int) {}
@@ -264,6 +339,9 @@ open class LevelEntity(
 
 fun <T : LevelEntity> T.addToLevel(): T {
     level.entities += this
+    if (static) {
+        level.staticEntities += this
+    }
     return this
 }
 
