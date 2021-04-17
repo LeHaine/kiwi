@@ -72,6 +72,25 @@ open class Entity(
                         if ((resolveXDepth && isCollidingWith(it)) || (!resolveXDepth && isCollidingWith(it))) {
                             // we check x first then y which allows us to determine which side the collision happened on
                             resolveCollision(this@Entity, it, resolveXDepth)
+                            if (collisionState[it] == true) {
+                                onCollisionUpdate(it)
+                                it.onCollisionUpdate(this@Entity)
+                            } else {
+                                // we only need to call it once
+                                onCollisionEnter(it)
+                                it.onCollisionEnter(this@Entity)
+                                collisionState[it] = true
+                                it.collisionState[this@Entity] = true
+                            }
+                            lastEntityCollided = it
+                            it.lastEntityCollided = this@Entity
+                            staticCollisionPairs.add(it)
+                            it.staticCollisionPairs.add(this@Entity)
+                        } else if (collisionState[it] == true && !resolveXDepth) {
+                            onCollisionExit(it)
+                            it.onCollisionExit(this@Entity)
+                            collisionState[it] = false
+                            it.collisionState[this@Entity] = false
                             staticCollisionPairs.add(it)
                             it.staticCollisionPairs.add(this@Entity)
                         }
