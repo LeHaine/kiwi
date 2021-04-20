@@ -68,6 +68,7 @@ class CooldownComponents(override val view: View) : UpdateComponent {
     }
 
     private fun interval(name: String, time: TimeSpan, callback: () -> Unit = {}): Closeable {
+        removeTimer(name)
         val timer = cooldownTimerPool.alloc().apply {
             this.time = time
             this.name = name
