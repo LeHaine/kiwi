@@ -7,7 +7,6 @@ import com.soywiz.kds.iterators.fastForEach
 import com.soywiz.klock.TimeSpan
 import com.soywiz.korge.view.Container
 import com.soywiz.korge.view.addTo
-import com.soywiz.korio.lang.Closeable
 
 open class Entity(
     val gridPositionComponent: GridPositionComponent = GridPositionComponentDefault(),
@@ -228,10 +227,10 @@ open class Entity(
     open fun onCollisionUpdate(entity: Entity) {}
     open fun onCollisionExit(entity: Entity) {}
 
-    fun cooldown(name: String, time: TimeSpan, callback: () -> Unit = {}): Closeable =
+    fun cooldown(name: String, time: TimeSpan, callback: () -> Unit = {}) =
         cooldown.timeout(name, time, callback)
 
-    fun cd(name: String, time: TimeSpan, callback: () -> Unit = {}): Closeable =
+    fun cd(name: String, time: TimeSpan, callback: () -> Unit = {}) =
         cooldown(name, time, callback)
 
     fun castRayTo(target: GridPositionComponent, canRayPass: (Int, Int) -> Boolean) =
