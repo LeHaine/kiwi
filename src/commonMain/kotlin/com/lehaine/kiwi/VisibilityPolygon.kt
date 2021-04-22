@@ -7,7 +7,10 @@ data class Intersection(var pt: Point = Point(), var param: Double = 0.0, var an
 data class Segment(var p1: Point = Point(), var p2: Point = Point())
 data class Ray(var p1: Point = Point(), var p2: Point = Point())
 
-class SightPolygon(private var sightX: Double = 0.0, private var sightY: Double = 0.0) {
+/**
+ * Based off of the info here: https://www.redblobgames.com/articles/visibility/
+ */
+class VisibilityPolygon(private var sightX: Double = 0.0, private var sightY: Double = 0.0) {
     private val segments = arrayListOf<Segment>()
     var output = arrayListOf<Point>()
 
