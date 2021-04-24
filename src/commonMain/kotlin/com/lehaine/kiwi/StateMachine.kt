@@ -20,15 +20,19 @@ class StateMachine<STATE : Any>(private val states: HashMap<STATE, State<out STA
         states[initialState] ?: error("Unable to set initial state of: $initialState")
     val currentState get() = _currentState
 
+    init {
+        _currentState.begin()
+    }
+
     fun update(dt: TimeSpan) {
         val state = _currentState.transition()
         if (_currentState.type != state) {
-            _currentState.end.invoke()
+            _currentState.end()
             _currentState = states[state] ?: error("Unable to set state of: $state")
-            _currentState.begin.invoke()
+            _currentState.begin()
             _currentState.also { onStateChanged?.invoke(it.type) }
         }
-        _currentState.update.invoke(dt)
+        _currentState.update(dt)
     }
 
     @StateMachineDsl
