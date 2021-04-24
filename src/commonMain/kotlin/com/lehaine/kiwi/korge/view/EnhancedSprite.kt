@@ -29,6 +29,7 @@ class EnhancedSprite(
 
     private var animationRequested = false
     var totalFramesPlayed = 0
+    var currentFrame = 0
     private var animationNumberOfFramesRequested = 0
         set(value) {
             if (value == 0) {
@@ -100,6 +101,7 @@ class EnhancedSprite(
     private var overlapPlaying: Boolean = false
 
     private var onAnimationEndCallback: (() -> Unit)? = null
+    private var onAnimationFrameChangeCallback: ((Int) -> Unit)? = null
 
     val anim = AnimationManager()
 
@@ -120,6 +122,7 @@ class EnhancedSprite(
     fun playOverlap(
         spriteAnimation: SpriteAnimation,
         spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
+        onAnimationFrameChange: ((Int) -> Unit)? = null,
         onAnimationEnd: (() -> Unit)? = null
     ) {
         if (!overlapPlaying) {
@@ -129,7 +132,13 @@ class EnhancedSprite(
             lastReversed = reversed
         }
         overlapPlaying = true
-        playAnimation(spriteAnimation, spriteDisplayTime, startFrame = 0, onAnimationEnd = onAnimationEnd)
+        playAnimation(
+            spriteAnimation,
+            spriteDisplayTime,
+            startFrame = 0,
+            onAnimationFrameChange = onAnimationFrameChange,
+            onAnimationEnd = onAnimationEnd
+        )
     }
 
     fun playOverlap(bmpSlice: BmpSlice, spriteDisplayTime: TimeSpan = 50.milliseconds, numFrames: Int = 1) =
@@ -163,9 +172,11 @@ class EnhancedSprite(
         startFrame: Int = -1,
         endFrame: Int = 0,
         reversed: Boolean = false,
+        onAnimationFrameChange: ((Int) -> Unit)? = null,
         onAnimationEnd: (() -> Unit)? = null
     ) {
         onAnimationEndCallback = onAnimationEnd
+        onAnimationFrameChangeCallback = onAnimationFrameChange
         updateCurrentAnimation(
             spriteAnimation = spriteAnimation,
             spriteDisplayTime = spriteDisplayTime,
@@ -256,6 +267,8 @@ class EnhancedSprite(
             if (animationRequested) {
                 if (reversed) --currentSpriteIndex else ++currentSpriteIndex
                 totalFramesPlayed++
+                currentFrame++
+                onAnimationFrameChangeCallback?.invoke(currentFrame)
                 triggerEvent(_onFrameChanged)
                 lastAnimationFrameTime = 0.milliseconds
             }
@@ -279,6 +292,7 @@ class EnhancedSprite(
         reversed: Boolean = false,
         type: AnimationType = AnimationType.STANDARD
     ) {
+        currentFrame = 0
         triggerEvent(_onAnimationStarted)
         this.spriteDisplayTime = spriteDisplayTime
         currentAnimation = spriteAnimation
