@@ -120,7 +120,7 @@ class LDtkLayerView(val layer: Layer, val tileset: TileSet? = null) : View() {
         val yheight = ymax - ymin
         val xwidth = xmax - xmin
         val ntiles = xwidth * yheight
-        val allocTiles = ntiles.nextPowerOfTwo
+        val allocTiles = ntiles.nextPowerOfTwo * 2 // TODO temp fix for LD jam
 
         infos.fastForEach { infosPool.free(it) }
         verticesPerTex.clear()
@@ -285,42 +285,47 @@ class LDtkLayerView(val layer: Layer, val tileset: TileSet? = null) : View() {
 
             computeIndices(flipX = flipX, flipY = flipY, rotate = false, indices = indices)
 
-            info.vertices.quadV(
-                info.vcount++,
-                p0X,
-                p0Y,
-                tempX[indices[0]],
-                tempY[indices[0]],
-                colMul,
-                colAdd
-            )
-            info.vertices.quadV(
-                info.vcount++,
-                p1X,
-                p1Y,
-                tempX[indices[1]],
-                tempY[indices[1]],
-                colMul,
-                colAdd
-            )
-            info.vertices.quadV(
-                info.vcount++,
-                p2X,
-                p2Y,
-                tempX[indices[2]],
-                tempY[indices[2]],
-                colMul,
-                colAdd
-            )
-            info.vertices.quadV(
-                info.vcount++,
-                p3X,
-                p3Y,
-                tempX[indices[3]],
-                tempY[indices[3]],
-                colMul,
-                colAdd
-            )
+            try {
+                info.vertices.quadV(
+                    info.vcount++,
+                    p0X,
+                    p0Y,
+                    tempX[indices[0]],
+                    tempY[indices[0]],
+                    colMul,
+                    colAdd
+                )
+                info.vertices.quadV(
+                    info.vcount++,
+                    p1X,
+                    p1Y,
+                    tempX[indices[1]],
+                    tempY[indices[1]],
+                    colMul,
+                    colAdd
+                )
+                info.vertices.quadV(
+                    info.vcount++,
+                    p2X,
+                    p2Y,
+                    tempX[indices[2]],
+                    tempY[indices[2]],
+                    colMul,
+                    colAdd
+                )
+                info.vertices.quadV(
+                    info.vcount++,
+                    p3X,
+                    p3Y,
+                    tempX[indices[3]],
+                    tempY[indices[3]],
+                    colMul,
+                    colAdd
+                )
+            } catch (e: Exception) {
+                e.printStackTrace()
+                println("$cx,$cy,$flipBits,${info.vcount}")
+            }
         }
 
         info.icount += 6

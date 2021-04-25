@@ -50,7 +50,7 @@ class CameraContainer(
     clampToViewBounds: Boolean = false,
     clip: Boolean = true,
     simpleCull: Boolean = true,
-    cullExclusions:List<String> = listOf(),
+    cullExclusions: List<String> = listOf(),
     contentBuilder: (camera: CameraContainer) -> Container = { FixedSizeContainer(it.width, it.height) },
     block: @ViewDslMarker CameraContainer.() -> Unit = {}
 ) : FixedSizeContainer(width, height, clip), View.Reference {
@@ -288,7 +288,7 @@ class CameraContainer(
             if (simpleCull) {
                 getGlobalBounds(camGlobalBounds)
                 foreachDescendant {
-                    if(!cullExclusions.contains(it.name)) {
+                    if (!cullExclusions.contains(it.name)) {
                         it.getGlobalBounds(tempRect)
                         it.visible = camGlobalBounds.intersects(tempRect)
                     }
