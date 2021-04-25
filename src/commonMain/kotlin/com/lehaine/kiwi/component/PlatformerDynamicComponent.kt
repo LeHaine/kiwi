@@ -54,7 +54,11 @@ class PlatformerDynamicComponentDefault(
     override var height: Double = 16.0
 
     override var hasGravity = true
-    override val onGround get() = velocityY == 0.0 && levelComponent.hasCollision(cx, cy + 1)
+    override val onGround
+        get() = velocityY == 0.0 && levelComponent.hasCollision(
+            cx,
+            cy + 1
+        ) && yr == bottomCollisionRatio
 
     private val gravityPulling get() = !onGround && hasGravity
 
