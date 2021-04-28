@@ -7,6 +7,8 @@ fun ClosedFloatingPointRange<Double>.random() = Random.nextDouble(start, endIncl
 fun ClosedFloatingPointRange<Float>.random() = Random.nextDouble(start.toDouble(), endInclusive.toDouble()).toFloat()
 fun IntRange.randomd() = Random.nextDouble(start.toDouble(), endInclusive.toDouble())
 
+fun sparseListOf(vararg ranges: IntRange): List<Int> = ranges.flatMap { it }
+
 
 fun distSqr(ax: Double, ay: Double, bx: Double, by: Double) =
     (ax - bx) * (ax - bx) + (ay - by) * (ay - by)

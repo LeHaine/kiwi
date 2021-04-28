@@ -30,6 +30,11 @@ class EnhancedSprite(
     private var animationRequested = false
     var totalFramesPlayed = 0
     var currentFrame = 0
+        private set(value) {
+            field = value umod totalFrames
+            bitmap = currentAnimation?.getSprite(value) ?: bitmap
+        }
+
     private var animationNumberOfFramesRequested = 0
         set(value) {
             if (value == 0) {
@@ -43,38 +48,40 @@ class EnhancedSprite(
         }
     private var animationType = AnimationType.STANDARD
 
-    private var _onAnimationCompleted: Signal<SpriteAnimation>? = null
-    private var _onAnimationStopped: Signal<SpriteAnimation>? = null
-    private var _onAnimationStarted: Signal<SpriteAnimation>? = null
-    private var _onFrameChanged: Signal<SpriteAnimation>? = null
+    private var _onAnimationCompleted: Signal<EnhancedSpriteAnimation>? = null
+    private var _onAnimationStopped: Signal<EnhancedSpriteAnimation>? = null
+    private var _onAnimationStarted: Signal<EnhancedSpriteAnimation>? = null
+    private var _onFrameChanged: Signal<EnhancedSpriteAnimation>? = null
 
-    val onAnimationCompleted: Signal<SpriteAnimation>
+    val onAnimationCompleted: Signal<EnhancedSpriteAnimation>
         get() {
             if (_onAnimationCompleted == null) _onAnimationCompleted = Signal()
             return _onAnimationCompleted!!
         }
 
-    val onAnimationStopped: Signal<SpriteAnimation>
+    val onAnimationStopped: Signal<EnhancedSpriteAnimation>
         get() {
             if (_onAnimationStopped == null) _onAnimationStopped = Signal()
             return _onAnimationStopped!!
         }
 
-    val onAnimationStarted: Signal<SpriteAnimation>
+    val onAnimationStarted: Signal<EnhancedSpriteAnimation>
         get() {
             if (_onAnimationStarted == null) _onAnimationStarted = Signal()
             return _onAnimationStarted!!
         }
 
-    val onFrameChanged: Signal<SpriteAnimation>
+    val onFrameChanged: Signal<EnhancedSpriteAnimation>
         get() {
             if (_onFrameChanged == null) _onFrameChanged = Signal()
             return _onFrameChanged!!
         }
 
-    var spriteDisplayTime: TimeSpan = 50.milliseconds
+    var spriteDisplayTime: TimeSpan = 100.milliseconds
     private var animationLooped = false
+
     private var lastAnimationFrameTime: TimeSpan = 0.milliseconds
+
     private var animationRemainingDuration: TimeSpan = 0.milliseconds
         set(value) {
             if (value <= 0.milliseconds && animationType == AnimationType.DURATION) {
@@ -84,20 +91,12 @@ class EnhancedSprite(
             field = value
         }
 
-    private var currentAnimation: SpriteAnimation? = null
+    private var currentAnimation: EnhancedSpriteAnimation? = null
 
-    var currentSpriteIndex = 0
-        private set(value) {
-            field = value umod totalFrames
-            bitmap = currentAnimation?.getSprite(value) ?: bitmap
-        }
-
-    private var reversed = false
-
-    private var lastAnimation: SpriteAnimation? = null
-    private var lastReversed: Boolean = false
+    private var lastAnimation: EnhancedSpriteAnimation? = null
     private var lastLooped: Boolean = false
     private var lastOnAnimationEndCallback: (() -> Unit)? = null
+    private var lastOnAnimationFrameChangeCallback: ((Int) -> Unit)? = null
     private var overlapPlaying: Boolean = false
 
     private var onAnimationEndCallback: (() -> Unit)? = null
@@ -107,71 +106,52 @@ class EnhancedSprite(
 
     init {
         addUpdater { frameTime ->
-            //println("UPDATER: animationRequested=$animationRequested")
             if (animationRequested) {
                 nextSprite(frameTime)
             }
         }
     }
 
-    private fun getDefaultTime(spriteAnimation: SpriteAnimation?): TimeSpan = when {
-        spriteAnimation != null && spriteAnimation.defaultTimePerFrame != TimeSpan.NIL -> spriteAnimation.defaultTimePerFrame
-        else -> spriteDisplayTime
-    }
 
     fun playOverlap(
-        spriteAnimation: SpriteAnimation,
-        spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
+        spriteAnimation: EnhancedSpriteAnimation,
         onAnimationFrameChange: ((Int) -> Unit)? = null,
         onAnimationEnd: (() -> Unit)? = null
     ) {
         if (!overlapPlaying) {
             lastOnAnimationEndCallback = onAnimationEndCallback
+            lastOnAnimationFrameChangeCallback = onAnimationFrameChangeCallback
             lastAnimation = currentAnimation
             lastLooped = animationLooped
-            lastReversed = reversed
         }
         overlapPlaying = true
         playAnimation(
             spriteAnimation,
-            spriteDisplayTime,
-            startFrame = 0,
             onAnimationFrameChange = onAnimationFrameChange,
             onAnimationEnd = onAnimationEnd
         )
     }
 
-    fun playOverlap(bmpSlice: BmpSlice, spriteDisplayTime: TimeSpan = 50.milliseconds, numFrames: Int = 1) =
-        playOverlap(SpriteAnimation(List(numFrames) { bmpSlice }, spriteDisplayTime))
-
+    fun playOverlap(bmpSlice: BmpSlice, frameTime: TimeSpan = 50.milliseconds, numFrames: Int = 1) =
+        playOverlap(EnhancedSpriteAnimation(bmpSlice, numFrames, frameTime))
 
     fun playAnimation(
         times: Int = 1,
-        spriteAnimation: SpriteAnimation? = currentAnimation,
-        spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
-        startFrame: Int = -1,
-        endFrame: Int = 0,
-        reversed: Boolean = false,
+        spriteAnimation: EnhancedSpriteAnimation? = currentAnimation,
+        onAnimationFrameChange: ((Int) -> Unit)? = null,
         onAnimationEnd: (() -> Unit)? = null
     ) {
+        onAnimationFrameChangeCallback = onAnimationFrameChange
         onAnimationEndCallback = onAnimationEnd
         updateCurrentAnimation(
             spriteAnimation = spriteAnimation,
-            spriteDisplayTime = spriteDisplayTime,
             animationCyclesRequested = times,
-            startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
-            endFrame = endFrame,
-            reversed = reversed,
             type = AnimationType.STANDARD
         )
     }
 
     fun playAnimation(
-        spriteAnimation: SpriteAnimation? = currentAnimation,
-        spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
-        startFrame: Int = -1,
-        endFrame: Int = 0,
-        reversed: Boolean = false,
+        spriteAnimation: EnhancedSpriteAnimation? = currentAnimation,
         onAnimationFrameChange: ((Int) -> Unit)? = null,
         onAnimationEnd: (() -> Unit)? = null
     ) {
@@ -179,48 +159,21 @@ class EnhancedSprite(
         onAnimationFrameChangeCallback = onAnimationFrameChange
         updateCurrentAnimation(
             spriteAnimation = spriteAnimation,
-            spriteDisplayTime = spriteDisplayTime,
             animationCyclesRequested = 1,
-            startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
-            endFrame = endFrame,
-            reversed = reversed,
             type = AnimationType.STANDARD
         )
     }
 
-    fun playAnimationForDuration(
-        duration: TimeSpan,
-        spriteAnimation: SpriteAnimation? = currentAnimation,
-        spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
-        startFrame: Int = -1,
-        reversed: Boolean = false,
-        onAnimationEnd: (() -> Unit)? = null
-    ) {
-        onAnimationEndCallback = onAnimationEnd
-        updateCurrentAnimation(
-            spriteAnimation = spriteAnimation,
-            spriteDisplayTime = spriteDisplayTime,
-            duration = duration,
-            startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
-            reversed = reversed,
-            type = AnimationType.DURATION
-        )
-    }
-
     fun playAnimationLooped(
-        spriteAnimation: SpriteAnimation? = currentAnimation,
-        spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
-        startFrame: Int = -1,
-        reversed: Boolean = false,
+        spriteAnimation: EnhancedSpriteAnimation? = currentAnimation,
+        onAnimationFrameChange: ((Int) -> Unit)? = null,
         onAnimationEnd: (() -> Unit)? = null
     ) {
+        onAnimationFrameChangeCallback = onAnimationFrameChange
         onAnimationEndCallback = onAnimationEnd
         updateCurrentAnimation(
             spriteAnimation = spriteAnimation,
-            spriteDisplayTime = spriteDisplayTime,
-            startFrame = if (startFrame >= 0) startFrame else currentSpriteIndex,
             looped = true,
-            reversed = reversed,
             type = AnimationType.LOOPED
         )
     }
@@ -235,16 +188,16 @@ class EnhancedSprite(
             if (lastLooped) {
                 playAnimationLooped(
                     lastAnimation,
-                    reversed = lastReversed,
-                    onAnimationEnd = lastOnAnimationEndCallback
+                    lastOnAnimationFrameChangeCallback,
+                    lastOnAnimationEndCallback
                 )
             } else {
-                playAnimation(lastAnimation, reversed = lastReversed, onAnimationEnd = lastOnAnimationEndCallback)
+                playAnimation(lastAnimation, lastOnAnimationFrameChangeCallback, lastOnAnimationEndCallback)
             }
             lastAnimation = null
-            lastReversed = false
             lastLooped = false
             lastOnAnimationEndCallback = null
+            lastOnAnimationFrameChangeCallback = null
         }
     }
 
@@ -265,9 +218,9 @@ class EnhancedSprite(
                 }
             }
             if (animationRequested) {
-                if (reversed) --currentSpriteIndex else ++currentSpriteIndex
                 totalFramesPlayed++
                 currentFrame++
+                spriteDisplayTime = currentAnimation?.getSpriteFrameTime(currentFrame) ?: 0.milliseconds
                 onAnimationFrameChangeCallback?.invoke(currentFrame)
                 triggerEvent(_onFrameChanged)
                 lastAnimationFrameTime = 0.milliseconds
@@ -278,47 +231,34 @@ class EnhancedSprite(
     val totalFrames: Int
         get() {
             val ca = currentAnimation ?: return 1
-            return ca.size
+            return ca.totalFrames
         }
 
     private fun updateCurrentAnimation(
-        spriteAnimation: SpriteAnimation?,
-        spriteDisplayTime: TimeSpan = getDefaultTime(spriteAnimation),
+        spriteAnimation: EnhancedSpriteAnimation?,
         animationCyclesRequested: Int = 1,
-        duration: TimeSpan = 0.milliseconds,
-        startFrame: Int = 0,
-        endFrame: Int = 0,
         looped: Boolean = false,
-        reversed: Boolean = false,
         type: AnimationType = AnimationType.STANDARD
     ) {
         currentFrame = 0
         triggerEvent(_onAnimationStarted)
-        this.spriteDisplayTime = spriteDisplayTime
+        onAnimationFrameChangeCallback?.invoke(currentFrame)
         currentAnimation = spriteAnimation
         animationLooped = looped
-        animationRemainingDuration = duration
-        currentSpriteIndex = startFrame
-        this.reversed = reversed
         animationType = type
         animationRequested = true
-        val endFrame = endFrame umod totalFrames
         currentAnimation?.let {
-            val count = when {
-                startFrame > endFrame -> (if (reversed) startFrame - endFrame else it.spriteStackSize - (startFrame - endFrame))
-                endFrame > startFrame -> (if (reversed) (startFrame - endFrame) umod it.spriteStackSize else endFrame - startFrame)
-                else -> 0
-            }
-            val requestedFrames = count + (animationCyclesRequested * it.spriteStackSize)
+            val requestedFrames = animationCyclesRequested * it.totalFrames
             this.animationNumberOfFramesRequested = requestedFrames
         }
     }
 
     fun setFrame(index: Int) {
-        currentSpriteIndex = index
+        currentFrame = index
+
     }
 
-    private fun triggerEvent(signal: Signal<SpriteAnimation>?) {
+    private fun triggerEvent(signal: Signal<EnhancedSpriteAnimation>?) {
         if (signal != null) currentAnimation?.let { signal.invoke(it) }
     }
 
@@ -328,11 +268,11 @@ class EnhancedSprite(
         /**
          * Priority is represented by the deepest. The deepest has top priority while the shallowest has lowest.
          */
-        fun registerState(anim: SpriteAnimation, loop: Boolean = true, reason: () -> Boolean) {
+        fun registerState(anim: EnhancedSpriteAnimation, loop: Boolean = true, reason: () -> Boolean) {
             states.add(AnimationState(anim, loop, reason))
         }
 
-        fun removeState(anim: SpriteAnimation) {
+        fun removeState(anim: EnhancedSpriteAnimation) {
             states.find { it.anim == anim }?.also { states.remove(it) }
         }
 
@@ -354,11 +294,11 @@ class EnhancedSprite(
         }
     }
 
-    private data class AnimationState(val anim: SpriteAnimation, val loop: Boolean, val reason: () -> Boolean)
+    private data class AnimationState(val anim: EnhancedSpriteAnimation, val loop: Boolean, val reason: () -> Boolean)
 }
 
-fun EnhancedSprite.registerState(anim: SpriteAnimation, loop: Boolean = true, reason: () -> Boolean) =
+fun EnhancedSprite.registerState(anim: EnhancedSpriteAnimation, loop: Boolean = true, reason: () -> Boolean) =
     this.anim.registerState(anim, loop, reason)
 
-fun EnhancedSprite.removeState(anim: SpriteAnimation) = this.anim.removeState(anim)
+fun EnhancedSprite.removeState(anim: EnhancedSpriteAnimation) = this.anim.removeState(anim)
 fun EnhancedSprite.removeAllStates() = this.anim.removeAllStates()
