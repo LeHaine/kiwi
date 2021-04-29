@@ -1,5 +1,7 @@
 package com.lehaine.kiwi.korge.view.ldtk
 
+import com.lehaine.kiwi.korge.view.Layers
+import com.lehaine.kiwi.korge.view.addToLayer
 import com.lehaine.ldtk.*
 import com.soywiz.kds.iterators.fastForEachReverse
 import com.soywiz.korge.view.*
@@ -12,6 +14,13 @@ inline fun Container.ldtkMapView(
     callback: LDtkMapView.() -> Unit = {}
 ) = LDtkMapView(ldtkLevel, renderIntGridLayer, debugEntities).addTo(this, callback)
 
+inline fun Layers.ldtkMapView(
+    ldtkLevel: LDtkLevel,
+    layer: Int = 0,
+    renderIntGridLayer: Boolean = false,
+    debugEntities: Boolean = false,
+    callback: LDtkMapView.() -> Unit = {}
+) = LDtkMapView(ldtkLevel, renderIntGridLayer, debugEntities).addToLayer(this, layer, callback)
 
 class LDtkMapView(
     val ldtkLevel: LDtkLevel,

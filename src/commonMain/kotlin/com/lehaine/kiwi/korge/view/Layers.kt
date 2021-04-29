@@ -11,6 +11,9 @@ import com.soywiz.korma.geom.Rectangle
 inline fun Container.layers(callback: @ViewDslMarker (Layers.() -> Unit) = {}) =
     Layers().addTo(this, callback)
 
+inline fun Layers.layers(layer: Int, callback: @ViewDslMarker (Layers.() -> Unit) = {}) =
+    Layers().addToLayer(this, layer, callback)
+
 class Layers : View() {
     private val children = FastArrayList<Container>()
 

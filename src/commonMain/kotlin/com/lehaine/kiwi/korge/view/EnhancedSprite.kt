@@ -19,6 +19,16 @@ inline fun Container.enhancedSprite(
     callback: @ViewDslMarker EnhancedSprite.() -> Unit = {}
 ): EnhancedSprite = EnhancedSprite(bitmap, anchorX, anchorY, hitShape, smoothing).addTo(this, callback)
 
+inline fun Layers.enhancedSprite(
+    layer:Int = 0,
+    bitmap: BmpSlice = Bitmaps.white,
+    anchorX: Double = 0.0,
+    anchorY: Double = 0.0,
+    hitShape: VectorPath? = null,
+    smoothing: Boolean = true,
+    callback: @ViewDslMarker EnhancedSprite.() -> Unit = {}
+): EnhancedSprite = EnhancedSprite(bitmap, anchorX, anchorY, hitShape, smoothing).addToLayer(this, layer, callback)
+
 class EnhancedSprite(
     bitmap: BmpSlice = Bitmaps.white,
     anchorX: Double = 0.0,

@@ -42,6 +42,33 @@ inline fun Container.cameraContainer(
 ).addTo(this)
     .also { content(it.content) }
 
+inline fun Layers.cameraContainer(
+    width: Double,
+    height: Double,
+    layer: Int = 0,
+    deadZone: Int = 5,
+    viewBounds: Rectangle = Rectangle(),
+    clampToViewBounds: Boolean = false,
+    clip: Boolean = true,
+    simpleCull: Boolean = true,
+    cullExclusions: List<String> = listOf(),
+    noinline contentBuilder: (camera: CameraContainer) -> Container = { FixedSizeContainer(it.width, it.height) },
+    noinline block: @ViewDslMarker CameraContainer.() -> Unit = {},
+    content: @ViewDslMarker Container.() -> Unit = {}
+) = CameraContainer(
+    width,
+    height,
+    deadZone,
+    viewBounds,
+    clampToViewBounds,
+    clip,
+    simpleCull,
+    cullExclusions,
+    contentBuilder,
+    block
+).addToLayer(this, layer)
+    .also { content(it.content) }
+
 class CameraContainer(
     width: Double = 100.0,
     height: Double = 100.0,
