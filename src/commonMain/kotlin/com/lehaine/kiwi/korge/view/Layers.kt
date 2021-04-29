@@ -3,10 +3,10 @@ package com.lehaine.kiwi.korge.view
 import com.soywiz.kds.FastArrayList
 import com.soywiz.kds.iterators.fastForEach
 import com.soywiz.kds.iterators.fastForEachWithIndex
-import com.soywiz.korge.render.RenderContext
-import com.soywiz.korge.view.*
-import com.soywiz.korma.geom.BoundsBuilder
-import com.soywiz.korma.geom.Rectangle
+import com.soywiz.korge.view.Container
+import com.soywiz.korge.view.View
+import com.soywiz.korge.view.ViewDslMarker
+import com.soywiz.korge.view.addTo
 
 inline fun Container.layers(callback: @ViewDslMarker (Layers.() -> Unit) = {}) =
     Layers().addTo(this, callback)
@@ -14,17 +14,17 @@ inline fun Container.layers(callback: @ViewDslMarker (Layers.() -> Unit) = {}) =
 inline fun Layers.layers(layer: Int, callback: @ViewDslMarker (Layers.() -> Unit) = {}) =
     Layers().addToLayer(this, layer, callback)
 
-class Layers : View() {
-    private val children = FastArrayList<Container>()
+class Layers : Container() {
+    private val layers = FastArrayList<Container>()
 
-    val numLayers get() = children.size
+    val numLayers get() = layers.size
 
     fun add(view: View, layer: Int = 0) = addChildToLayer(view, layer)
 
     fun addChild(view: View, layer: Int = 0) = add(view, layer)
 
     fun remove(view: View?) {
-        children.fastForEach {
+        layers.fastForEach {
             if (view?.parent == it) {
                 view.removeFromParent()
                 return
@@ -36,7 +36,7 @@ class Layers : View() {
      * @return the layer index on which the child view resides on
      */
     fun getChildLayer(view: View): Int {
-        children.fastForEachWithIndex { index, container ->
+        layers.fastForEachWithIndex { index, container ->
             if (view.parent == container) {
                 return index
             }
@@ -49,7 +49,7 @@ class Layers : View() {
      * Sends child to the back of its layer so that it is rendered first (behind all other objects in its layer).
      */
     fun sendToBack(view: View) {
-        children.fastForEach {
+        layers.fastForEach {
             if (view.parent == it) {
                 it.sendChildToBack(view)
                 return
@@ -61,7 +61,7 @@ class Layers : View() {
      * Sends child to front of its layer so that it is rendered last (in front of all other objects in its layer)
      */
     fun sendToFront(view: View) {
-        children.fastForEach {
+        layers.fastForEach {
             if (view.parent == it) {
                 it.sendChildToFront(view)
                 return
@@ -72,53 +72,15 @@ class Layers : View() {
     /**
      * Grabs the specified layer.
      */
-    operator fun get(index: Int): View = children[index]
+    fun getLayer(index: Int): Container = layers[index]
 
     private fun addChildToLayer(view: View, layer: Int) {
         while (layer >= numLayers) {
-            val container = Container()
-            children += container
+            val container = Container().addTo(this)
+            layers += container
 
             container.addChild(view)
         }
-    }
-
-    override fun renderInternal(ctx: RenderContext) {
-        if (!visible) return
-
-        forEachChild {
-            it.render(ctx)
-        }
-    }
-
-
-    override fun renderDebug(ctx: RenderContext) {
-        forEachChild {
-            it.render(ctx)
-        }
-        super.renderDebug(ctx)
-    }
-
-    private val bb = BoundsBuilder()
-    private val tempRect = Rectangle()
-
-    override fun getLocalBoundsInternal(out: Rectangle) {
-        bb.reset()
-        forEachChild { child: View ->
-            child.getBounds(this, tempRect)
-            bb.add(tempRect)
-        }
-        bb.getBounds(out)
-    }
-
-    override fun createInstance(): View {
-        return Layers()
-    }
-
-    override fun clone(): View {
-        val out = super.clone()
-        children.fastForEach { out += it.clone() }
-        return out
     }
 }
 
