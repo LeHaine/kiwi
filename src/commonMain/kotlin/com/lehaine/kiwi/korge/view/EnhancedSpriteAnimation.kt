@@ -1,6 +1,5 @@
 package com.lehaine.kiwi.korge.view
 
-import com.lehaine.kiwi.sparseListOf
 import com.soywiz.kds.FastArrayList
 import com.soywiz.kds.toFastList
 import com.soywiz.klock.TimeSpan
@@ -22,6 +21,8 @@ class EnhancedSpriteAnimation(
         numFrames: Int = 1,
         frameTime: TimeSpan = 100.milliseconds,
     ) : this(listOf<BmpSlice>(bmpSlice), List(numFrames) { 0 }, List(numFrames) { frameTime })
+
+    val duration = frameTimes.reduce { acc, timeSpan -> acc + timeSpan }
 
     companion object {
         operator fun invoke(
@@ -51,7 +52,7 @@ class EnhancedSpriteAnimation(
                 }
             }
 
-            return EnhancedSpriteAnimation(bmps, sparseListOf(0..bmps.size), List(bmps.size) { TimeSpan.NIL })
+            return EnhancedSpriteAnimation(bmps, List(bmps.size) { it }, List(bmps.size) { TimeSpan.NIL })
         }
     }
 

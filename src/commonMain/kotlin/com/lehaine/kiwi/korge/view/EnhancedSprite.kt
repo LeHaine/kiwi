@@ -240,10 +240,11 @@ class EnhancedSprite(
         looped: Boolean = false,
         type: AnimationType = AnimationType.STANDARD
     ) {
+        currentAnimation = spriteAnimation
         currentFrame = 0
         triggerEvent(_onAnimationStarted)
         onAnimationFrameChangeCallback?.invoke(currentFrame)
-        currentAnimation = spriteAnimation
+        spriteDisplayTime = currentAnimation?.getSpriteFrameTime(currentFrame) ?: 0.milliseconds
         animationLooped = looped
         animationType = type
         animationRequested = true
