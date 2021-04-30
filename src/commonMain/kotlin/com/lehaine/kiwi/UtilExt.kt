@@ -9,11 +9,15 @@ fun IntRange.randomd() = Random.nextDouble(start.toDouble(), endInclusive.toDoub
 
 fun sparseListOf(vararg ranges: IntRange): List<Int> = ranges.flatMap { it }
 
-
 fun distSqr(ax: Double, ay: Double, bx: Double, by: Double) =
     (ax - bx) * (ax - bx) + (ay - by) * (ay - by)
 
 fun dist(ax: Double, ay: Double, bx: Double, by: Double) =
     sqrt(distSqr(ax, ay, bx, by))
 
-
+inline fun checkTrue(value: Boolean, lazyMessage: () -> Any) {
+    if (value) {
+        val message = lazyMessage()
+        throw IllegalStateException(message.toString())
+    }
+}
