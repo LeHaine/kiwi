@@ -265,10 +265,10 @@ class CameraContainer(
                     val point = getFollowingXY(tempPoint)
                     val dist = dist(currentCamera.x, currentCamera.y, point.x, point.y)
                     if (dist >= deadZone) {
-                        // TODO fix this (dist-deadZone) issue causing infinity results
-                        val speed = 0.03 * cameraZoom// * (dist - deadZone)
-                        cameraX = speed.interpolate(currentCamera.x, point.x)
-                        cameraY = speed.interpolate(currentCamera.y, point.y)
+                        val speedX = 0.015 * cameraZoom
+                        val speedY = 0.023 * cameraZoom
+                        cameraX = speedX.interpolate(currentCamera.x, point.x)
+                        cameraY = speedY.interpolate(currentCamera.y, point.y)
                     }
                     sync()
                 }
