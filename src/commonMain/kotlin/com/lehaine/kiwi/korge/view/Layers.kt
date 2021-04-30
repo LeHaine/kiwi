@@ -78,9 +78,8 @@ class Layers : Container() {
         while (layer >= numLayers) {
             val container = Container().addTo(this)
             layers += container
-
-            container.addChild(view)
         }
+        layers[layer].addChild(view)
     }
 }
 

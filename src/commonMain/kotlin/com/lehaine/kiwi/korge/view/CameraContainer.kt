@@ -177,7 +177,8 @@ class CameraContainer(
 
     private var easing = Easing.LINEAR
 
-    private var following: View? = null
+    var following: View? = null
+        private set
 
     private var shakePower = 1.0
 

@@ -3,6 +3,8 @@ package com.lehaine.kiwi.component
 import com.lehaine.kiwi.component.ext.*
 import com.lehaine.kiwi.korge.cooldown
 import com.lehaine.kiwi.korge.view.ComponentContainer
+import com.lehaine.kiwi.korge.view.Layers
+import com.lehaine.kiwi.korge.view.addToLayer
 import com.soywiz.kds.iterators.fastForEach
 import com.soywiz.klock.TimeSpan
 import com.soywiz.korge.view.Container
@@ -279,6 +281,11 @@ open class Entity(
 
 fun <T : Entity> T.addTo(parent: Container): T {
     container.addTo(parent)
+    return this
+}
+
+fun <T : Entity> T.addToLayer(parent: Layers, layer:Int): T {
+    container.addToLayer(parent, layer)
     return this
 }
 
