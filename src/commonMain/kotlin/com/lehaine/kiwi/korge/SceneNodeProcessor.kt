@@ -8,12 +8,16 @@ import com.soywiz.korge.view.addUpdater
 
 abstract class SceneNodeProcessor : Scene() {
 
-    open val wantedFPS = 60.0
-
     abstract val rootSceneNode: SceneNode
-    protected val sceneNodeManager = SceneNodeManager()
 
-    protected val fpsDT get() = (1.0 / wantedFPS).seconds
+    var targetFPS = 60.0
+        set(value) {
+            field = value
+            sceneNodeManager.targetFps = value.toInt()
+        }
+
+    protected val sceneNodeManager = SceneNodeManager()
+    protected val fpsDT get() = (1.0 / targetFPS).seconds
 
     override suspend fun Container.sceneInit() {
         addChild(rootSceneNode.root)
