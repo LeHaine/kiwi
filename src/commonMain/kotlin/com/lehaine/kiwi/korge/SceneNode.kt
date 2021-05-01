@@ -169,6 +169,7 @@ open class SceneNode(var parent: SceneNode? = null) {
         sceneNode.parent = this
         sceneNode.sceneNodeManager = sceneNodeManager
         children.add(sceneNode)
+        sceneNode.init()
     }
 
     fun removeAndDestroyChild(child: SceneNode) {

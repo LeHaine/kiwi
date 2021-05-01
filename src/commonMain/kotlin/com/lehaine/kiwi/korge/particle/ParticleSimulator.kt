@@ -12,9 +12,9 @@ import com.soywiz.korim.color.Colors
 import com.soywiz.korim.color.RGBA
 import kotlin.math.pow
 
-class ParticleSimulator(maxParticles: Int) {
+class ParticleSimulator(maxParticles: Int, private val fps: Int) {
 
-    val particles = List(maxParticles) { init(Particle(Bitmaps.white).apply { index = it }) }
+    val particles = List(maxParticles) { init(Particle(Bitmaps.white, fps).apply { index = it }) }
 
     private var numAlloc = 0
 
@@ -74,6 +74,7 @@ class ParticleSimulator(maxParticles: Int) {
             gravityX = 0.0
             gravityY = 0.0
             fadeOutSpeed = 0.1
+            delay = TimeSpan.ZERO
             life = 1.seconds
 
             colorRdelta = 0.0
@@ -105,18 +106,18 @@ class ParticleSimulator(maxParticles: Int) {
     private fun kill(particle: Particle) {
         particle.alpha = 0f
         particle.life = TimeSpan.ZERO
+        particle.delay = TimeSpan.ZERO
         particle.killed = true
         particle.visible = false
     }
 
-    private fun advance(particle: Particle, dt: TimeSpan) {
-        particle.delay -= dt
+    private fun advance(particle: Particle, tmod: Double) {
+        particle.delayFrames -= tmod
         if (particle.killed || particle.delay > 0.milliseconds) return
 
         particle.onStart?.invoke()
         particle.onStart = null
 
-        val tmod = if (dt == 0.milliseconds) 0.0 else (dt / 16.666666.milliseconds)
         with(particle) {
             // gravity
             xDelta += gravityX * tmod
@@ -154,14 +155,14 @@ class ParticleSimulator(maxParticles: Int) {
             scaleDeltaY *= scaleFrictPow
 
             // color
-           val colorR = color.rd + particle.colorRdelta * tmod
-           val colorG =color.gd + particle.colorGdelta * tmod
-           val colorB = color.bd + particle.colorBdelta * tmod
-           val colorA = color.ad + particle.alphaDelta * tmod
+            val colorR = color.rd + particle.colorRdelta * tmod
+            val colorG = color.gd + particle.colorGdelta * tmod
+            val colorB = color.bd + particle.colorBdelta * tmod
+            val colorA = color.ad + particle.alphaDelta * tmod
             color = RGBA.float(colorR, colorG, colorB, colorA)
 
             // life
-            remainingLife -= dt
+            remainingLifeFrames -= tmod
             if (remainingLife <= 0.milliseconds) {
                 alpha -= (fadeOutSpeed * tmod).toFloat()
             }
@@ -175,10 +176,10 @@ class ParticleSimulator(maxParticles: Int) {
         }
     }
 
-    fun simulate(dt: TimeSpan) {
+    fun simulate(tmod: Double) {
         for (i in 0..numAlloc) {
             val particle = particles[i]
-            advance(particle, dt)
+            advance(particle, tmod)
         }
     }
 }

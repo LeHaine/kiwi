@@ -21,8 +21,8 @@ abstract class SceneNodeProcessor : Scene() {
 
     override suspend fun Container.sceneInit() {
         addChild(rootSceneNode.root)
-
         rootSceneNode.sceneNodeManager = sceneNodeManager
+        rootSceneNode.init()
 
         addUpdater { dt ->
             val tmod = if (dt == 0.milliseconds) 0.0 else (dt / fpsDT)

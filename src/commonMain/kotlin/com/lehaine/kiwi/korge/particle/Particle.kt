@@ -8,9 +8,10 @@ import com.soywiz.korge.view.fast.y
 import com.soywiz.korim.bitmap.BmpSlice
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.max
 import kotlin.math.sin
 
-class Particle(tex: BmpSlice) : FastSprite(tex) {
+class Particle(tex: BmpSlice, val fps: Int) : FastSprite(tex) {
     var index: Int = 0
     var xDelta: Double = 0.0
     var yDelta: Double = 0.0
@@ -44,21 +45,43 @@ class Particle(tex: BmpSlice) : FastSprite(tex) {
     /**
      * Total particle life
      */
-    var life: TimeSpan = 1.seconds
+    var life: TimeSpan
+        get() = (lifeFrame / fps).seconds
         set(value) {
-            field = value
+            lifeFrame = fps * value.seconds
             remainingLife = value
+        }
+    var lifeFrame: Double = 0.0
+        set(value) {
+            field = max(0.0, value)
+            remainingLifeFrames = field
         }
 
     /**
      * Life remaining before being killed
      */
-    var remainingLife: TimeSpan = TimeSpan.NIL
+    var remainingLife: TimeSpan
+        get() = (remainingLifeFrames / fps).seconds
+        set(value) {
+            remainingLifeFrames = fps * value.seconds
+        }
+    var remainingLifeFrames: Double = 0.0
+        set(value) {
+            field = max(0.0, value)
+        }
 
     /**
      * Time to delay the particle from starting updates
      */
-    var delay: TimeSpan = TimeSpan.ZERO
+    var delay: TimeSpan
+        get() = (delayFrames / fps).seconds
+        set(value) {
+            delayFrames = fps * value.seconds
+        }
+    var delayFrames: Double = 0.0
+        set(value) {
+            field = max(0.0, value)
+        }
 
     var killed = false
 
