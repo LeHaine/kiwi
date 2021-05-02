@@ -116,54 +116,53 @@ class ParticleSimulator(maxParticles: Int) {
         particle.onStart?.invoke()
         particle.onStart = null
 
-        val tmod = if (dt == 0.milliseconds) 0.0 else (dt / 16.666666.milliseconds)
         with(particle) {
             // gravity
-            xDelta += gravityX * tmod
-            yDelta += gravityY * tmod
+            xDelta += gravityX * dt.seconds
+            yDelta += gravityY * dt.seconds
 
             // movement
-            x += xDelta * tmod
-            y += yDelta * tmod
+            x += xDelta * dt.seconds
+            y += yDelta * dt.seconds
 
             // friction
             if (frictionX == frictionY) {
-                val frictTmod = frictionX.fastPow(tmod)
+                val frictTmod = frictionX.fastPow(dt.seconds)
                 xDelta *= frictTmod
                 yDelta *= frictTmod
             } else {
-                xDelta *= frictionX.fastPow(tmod)
-                yDelta *= frictionY.fastPow(tmod)
+                xDelta *= frictionX.fastPow(dt.seconds)
+                yDelta *= frictionY.fastPow(dt.seconds)
             }
 
             // rotation
-            rotation += rotationDelta * tmod
-            rotationDelta *= rotationFriction.fastPow(tmod)
+            rotation += rotationDelta * dt.seconds
+            rotationDelta *= rotationFriction.fastPow(dt.seconds)
 
             // scale
-            scaleX += (scaleDelta + scaleDeltaX) * tmod
-            scaleY += (scaleDelta + scaleDeltaY) * tmod
-            val scaleMulTmod = scaleMultiplier.fastPow(tmod)
+            scaleX += (scaleDelta + scaleDeltaX) * dt.seconds
+            scaleY += (scaleDelta + scaleDeltaY) * dt.seconds
+            val scaleMulTmod = scaleMultiplier.fastPow(dt.seconds)
             scaleX *= scaleMulTmod
-            scaleX *= scaleXMultiplier.fastPow(tmod)
+            scaleX *= scaleXMultiplier.fastPow(dt.seconds)
             scaleY *= scaleMulTmod
-            scaleY *= scaleYMultiplier.fastPow(tmod)
-            val scaleFrictPow = scaleFriction.fastPow(tmod)
+            scaleY *= scaleYMultiplier.fastPow(dt.seconds)
+            val scaleFrictPow = scaleFriction.fastPow(dt.seconds)
             scaleDelta *= scaleFrictPow
             scaleDeltaX *= scaleFrictPow
             scaleDeltaY *= scaleFrictPow
 
             // color
-           val colorR = color.rd + particle.colorRdelta * tmod
-           val colorG =color.gd + particle.colorGdelta * tmod
-           val colorB = color.bd + particle.colorBdelta * tmod
-           val colorA = color.ad + particle.alphaDelta * tmod
+            val colorR = color.rd + particle.colorRdelta * dt.seconds
+            val colorG = color.gd + particle.colorGdelta * dt.seconds
+            val colorB = color.bd + particle.colorBdelta * dt.seconds
+            val colorA = color.ad + particle.alphaDelta * dt.seconds
             color = RGBA.float(colorR, colorG, colorB, colorA)
 
             // life
             remainingLife -= dt
             if (remainingLife <= 0.milliseconds) {
-                alpha -= (fadeOutSpeed * tmod).toFloat()
+                alpha -= (fadeOutSpeed * dt.seconds).toFloat()
             }
 
             if (remainingLife <= 0.milliseconds && alpha <= 0) {

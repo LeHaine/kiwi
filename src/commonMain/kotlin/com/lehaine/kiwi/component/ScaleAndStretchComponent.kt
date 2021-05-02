@@ -1,5 +1,6 @@
 package com.lehaine.kiwi.component
 
+import com.soywiz.klock.TimeSpan
 import com.soywiz.korge.debug.uiCollapsibleSection
 import com.soywiz.korge.debug.uiEditableValue
 import com.soywiz.korui.UiContainer
@@ -12,7 +13,7 @@ interface ScaleAndStretchComponent : Component {
     var scaleX: Double
     var scaleY: Double
 
-    fun updateStretchAndScale(tmod: Double)
+    fun updateStretchAndScale(dt: TimeSpan)
 
     override fun buildDebugInfo(container: UiContainer) {
         container.uiCollapsibleSection("Scale and Stretch Component") {
@@ -62,8 +63,8 @@ class ScaleAndStretchComponentDefault : ScaleAndStretchComponent {
     override var scaleX = 1.0
     override var scaleY = 1.0
 
-    override fun updateStretchAndScale(tmod: Double) {
-        _stretchX += (1 - _stretchX) * min(1.0, 0.2 * tmod)
-        _stretchY += (1 - _stretchY) * min(1.0, 0.2 * tmod)
+    override fun updateStretchAndScale(dt: TimeSpan) {
+        _stretchX += (1 - _stretchX) * min(1.0, 0.2 * dt.seconds)
+        _stretchY += (1 - _stretchY) * min(1.0, 0.2 * dt.seconds)
     }
 }
