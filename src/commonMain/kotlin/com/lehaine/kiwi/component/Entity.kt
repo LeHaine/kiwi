@@ -48,13 +48,11 @@ open class Entity(
         }
     }
 
-    override var tmod: Double = 1.0
-
-    override fun update(dt: TimeSpan) {
+    override fun update(tmod: Double) {
         gridPositionComponent.updateGridPosition(tmod)
     }
 
-    override fun postUpdate(dt: TimeSpan) {
+    override fun postUpdate(tmod: Double) {
         syncViewPosition()
         scaleComponent.updateStretchAndScale(tmod)
         checkCollisions()
@@ -284,7 +282,7 @@ fun <T : Entity> T.addTo(parent: Container): T {
     return this
 }
 
-fun <T : Entity> T.addToLayer(parent: Layers, layer:Int): T {
+fun <T : Entity> T.addToLayer(parent: Layers, layer: Int): T {
     container.addToLayer(parent, layer)
     return this
 }
@@ -300,7 +298,7 @@ open class SpriteEntity(
         container.addChild(spriteComponent.sprite)
     }
 
-    override fun postUpdate(dt: TimeSpan) {
+    override fun postUpdate(tmod: Double) {
         syncViewPosition()
         syncSprite()
         scaleComponent.updateStretchAndScale(tmod)

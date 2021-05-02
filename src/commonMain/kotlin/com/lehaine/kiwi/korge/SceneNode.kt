@@ -51,7 +51,7 @@ class SceneNodeManager {
         sceneNode.utmod = utmod
 
         if (_canRun(sceneNode)) {
-            sceneNode.preUpdate()
+            sceneNode.run { root.preUpdate() }
 
             sceneNode.children.forEach {
                 _preUpdate(it, sceneNode.utmod)
@@ -62,7 +62,7 @@ class SceneNodeManager {
     private fun _update(sceneNode: SceneNode) {
         if (!_canRun(sceneNode)) return
 
-        sceneNode.update()
+        sceneNode.run { root.update() }
 
         sceneNode.children.forEach {
             _update(it)
@@ -76,7 +76,7 @@ class SceneNodeManager {
             fixedUpdateCounter += tmod
             while (fixedUpdateCounter >= targetFps / fixedUpdateFps) {
                 fixedUpdateCounter -= targetFps / fixedUpdateFps
-                fixedUpdate()
+                root.fixedUpdate()
             }
 
             children.forEach {
@@ -88,7 +88,7 @@ class SceneNodeManager {
     private fun _postUpdate(sceneNode: SceneNode) {
         if (!_canRun(sceneNode)) return
 
-        sceneNode.postUpdate()
+        sceneNode.run { root.postUpdate() }
         sceneNode.children.forEach {
             _postUpdate(it)
         }
@@ -169,7 +169,7 @@ open class SceneNode(var parent: SceneNode? = null) {
         sceneNode.parent = this
         sceneNode.sceneNodeManager = sceneNodeManager
         children.add(sceneNode)
-        sceneNode.init()
+        root.init()
     }
 
     fun removeAndDestroyChild(child: SceneNode) {
@@ -198,15 +198,18 @@ open class SceneNode(var parent: SceneNode? = null) {
 
     fun isRootProcess() = parent == null
 
-    open fun init() {}
 
-    open fun preUpdate() {}
+    open suspend fun load() {}
 
-    open fun update() {}
+    open fun Layers.init() {}
 
-    open fun fixedUpdate() {}
+    open fun Layers.preUpdate() {}
 
-    open fun postUpdate() {}
+    open fun Layers.update() {}
+
+    open fun Layers.fixedUpdate() {}
+
+    open fun Layers.postUpdate() {}
 
     open fun onResize() {}
 
