@@ -49,7 +49,10 @@ open class Entity(
     }
 
     override fun update(dt: TimeSpan) {
-        gridPositionComponent.updateGridPosition(dt)
+    }
+
+    override fun fixedUpdate() {
+        gridPositionComponent.updateGridPosition()
     }
 
     override fun postUpdate(dt: TimeSpan) {

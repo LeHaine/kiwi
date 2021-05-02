@@ -1,6 +1,5 @@
 package com.lehaine.kiwi.component
 
-import com.soywiz.klock.TimeSpan
 import com.soywiz.korge.debug.uiCollapsibleSection
 import com.soywiz.korge.debug.uiEditableValue
 import com.soywiz.korui.UiContainer
@@ -35,7 +34,7 @@ interface GridPositionComponent : Component {
     var preXCheck: (() -> Unit)?
     var preYCheck: (() -> Unit)?
 
-    fun updateGridPosition(dt: TimeSpan) {
+    fun updateGridPosition() {
         preXCheck?.invoke()
         while (xr > 1) {
             xr--

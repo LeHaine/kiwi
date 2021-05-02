@@ -1,11 +1,9 @@
 package com.lehaine.kiwi.component
 
-import com.soywiz.klock.TimeSpan
 import com.soywiz.korge.debug.uiCollapsibleSection
 import com.soywiz.korge.debug.uiEditableValue
 import com.soywiz.korui.UiContainer
 import kotlin.math.floor
-import kotlin.math.pow
 
 interface LevelDynamicComponent : DynamicComponent {
     var rightCollisionRatio: Double
@@ -81,21 +79,21 @@ open class LevelDynamicComponentDefault(
     override var width: Double = 16.0
     override var height: Double = 16.0
 
-    override fun checkXCollision(dt: TimeSpan) {
+    override fun checkXCollision() {
         if (levelComponent.hasCollision(cx + 1, cy) && xr >= rightCollisionRatio) {
             xr = rightCollisionRatio
-            velocityX *= 0.5.pow(dt.seconds)
+            velocityX *= 0.5
             onLevelCollision?.invoke(1, 0)
         }
 
         if (levelComponent.hasCollision(cx - 1, cy) && xr <= leftCollisionRatio) {
             xr = leftCollisionRatio
-            velocityX *= 0.5.pow(dt.seconds)
+            velocityX *= 0.5
             onLevelCollision?.invoke(-1, 0)
         }
     }
 
-    override fun checkYCollision(dt: TimeSpan) {
+    override fun checkYCollision() {
         val heightCoordDiff = if (useTopCollisionRatio) topCollisionRatio else floor(height / gridCellSize.toDouble())
         if (levelComponent.hasCollision(cx, cy - 1) && yr <= heightCoordDiff) {
             yr = heightCoordDiff

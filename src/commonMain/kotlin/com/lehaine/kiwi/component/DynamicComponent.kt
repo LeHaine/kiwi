@@ -1,12 +1,10 @@
 package com.lehaine.kiwi.component
 
-import com.soywiz.klock.TimeSpan
 import com.soywiz.korge.debug.uiCollapsibleSection
 import com.soywiz.korge.debug.uiEditableValue
 import com.soywiz.korui.UiContainer
 import kotlin.math.abs
 import kotlin.math.ceil
-import kotlin.math.pow
 
 interface DynamicComponent : GridPositionComponent {
     var gravityX: Double
@@ -19,23 +17,28 @@ interface DynamicComponent : GridPositionComponent {
     var maxGridMovementPercent: Double
 
 
-    override fun updateGridPosition(dt: TimeSpan) {
-        velocityX += calculateDeltaXGravity(dt)
-        velocityY += calculateDeltaYGravity(dt)
+    /**
+     * Should be called in fixedUpdate
+     */
+    override fun updateGridPosition() {
+        velocityX += calculateDeltaXGravity()
+        velocityY += calculateDeltaYGravity()
 
         /**
          * Any movement greater than [maxGridMovementPercent] will increase the number of steps here.
          * The steps will break down the movement into smaller iterators to avoid jumping over grid collisions
          */
-        var steps = ceil(abs(velocityX * dt.seconds) + abs(velocityY * dt.seconds) / maxGridMovementPercent)
+        var steps = ceil(abs(velocityX) + abs(velocityY) / maxGridMovementPercent)
         if (steps > 0) {
-            val stepX = velocityX * dt.seconds / steps
-            val stepY = velocityY * dt.seconds / steps
+            val stepX = velocityX / steps
+            val stepY = velocityY / steps
             while (steps > 0) {
                 xr += stepX
 
-                preXCheck?.invoke()
-                checkXCollision(dt)
+                if (velocityX != 0.0) {
+                    preXCheck?.invoke()
+                    checkXCollision()
+                }
 
                 while (xr > 1) {
                     xr--
@@ -47,8 +50,12 @@ interface DynamicComponent : GridPositionComponent {
                 }
 
                 yr += stepY
-                preYCheck?.invoke()
-                checkYCollision(dt)
+
+
+                if (velocityY != 0.0) {
+                    preYCheck?.invoke()
+                    checkYCollision()
+                }
 
                 while (yr > 1) {
                     yr--
@@ -63,28 +70,28 @@ interface DynamicComponent : GridPositionComponent {
                 steps--
             }
         }
-        velocityX *= frictionX.pow(dt.seconds)
-        if (abs(velocityX) <= 0.0005 * dt.seconds) {
+        velocityX *= frictionX
+        if (abs(velocityX) <= 0.0005) {
             velocityX = 0.0
         }
 
-        velocityY *= frictionY.pow(dt.seconds)
-        if (abs(velocityY) <= 0.0005 * dt.seconds) {
+        velocityY *= frictionY
+        if (abs(velocityY) <= 0.0005) {
             velocityY = 0.0
         }
     }
 
 
-    fun calculateDeltaXGravity(dt: TimeSpan): Double {
+    fun calculateDeltaXGravity(): Double {
         return 0.0
     }
 
-    fun calculateDeltaYGravity(dt: TimeSpan): Double {
+    fun calculateDeltaYGravity(): Double {
         return 0.0
     }
 
-    fun checkXCollision(dt: TimeSpan) {}
-    fun checkYCollision(dt: TimeSpan) {}
+    fun checkXCollision() {}
+    fun checkYCollision() {}
 
 
     override fun buildDebugInfo(container: UiContainer) {

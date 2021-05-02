@@ -126,28 +126,22 @@ class ParticleSimulator(maxParticles: Int) {
             y += yDelta * dt.seconds
 
             // friction
-            if (frictionX == frictionY) {
-                val frictTmod = frictionX.fastPow(dt.seconds)
-                xDelta *= frictTmod
-                yDelta *= frictTmod
-            } else {
-                xDelta *= frictionX.fastPow(dt.seconds)
-                yDelta *= frictionY.fastPow(dt.seconds)
-            }
+            xDelta *= frictionX * dt.seconds
+            yDelta *= frictionY * dt.seconds
 
             // rotation
             rotation += rotationDelta * dt.seconds
-            rotationDelta *= rotationFriction.fastPow(dt.seconds)
+            rotationDelta *= rotationFriction * dt.seconds
 
             // scale
             scaleX += (scaleDelta + scaleDeltaX) * dt.seconds
             scaleY += (scaleDelta + scaleDeltaY) * dt.seconds
-            val scaleMulTmod = scaleMultiplier.fastPow(dt.seconds)
-            scaleX *= scaleMulTmod
-            scaleX *= scaleXMultiplier.fastPow(dt.seconds)
-            scaleY *= scaleMulTmod
-            scaleY *= scaleYMultiplier.fastPow(dt.seconds)
-            val scaleFrictPow = scaleFriction.fastPow(dt.seconds)
+            val scaleMul = scaleMultiplier * dt.seconds
+            scaleX *= scaleMul
+            scaleX *= scaleXMultiplier * dt.seconds
+            scaleY *= scaleMul
+            scaleY *= scaleYMultiplier * dt.seconds
+            val scaleFrictPow = scaleFriction * dt.seconds
             scaleDelta *= scaleFrictPow
             scaleDeltaX *= scaleFrictPow
             scaleDeltaY *= scaleFrictPow

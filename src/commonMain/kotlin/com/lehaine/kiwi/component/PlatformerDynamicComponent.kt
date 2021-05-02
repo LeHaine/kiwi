@@ -63,21 +63,21 @@ class PlatformerDynamicComponentDefault(
 
     private val gravityPulling get() = !onGround && hasGravity
 
-    override fun checkXCollision(dt: TimeSpan) {
+    override fun checkXCollision() {
         if (levelComponent.hasCollision(cx + 1, cy) && xr >= rightCollisionRatio) {
             xr = rightCollisionRatio
-            velocityX *= 0.5.pow(dt.seconds)
+            velocityX *= 0.5
             onLevelCollision?.invoke(1, 0)
         }
 
         if (levelComponent.hasCollision(cx - 1, cy) && xr <= leftCollisionRatio) {
             xr = leftCollisionRatio
-            velocityX *= 0.5.pow(dt.seconds)
+            velocityX *= 0.5
             onLevelCollision?.invoke(-1, 0)
         }
     }
 
-    override fun checkYCollision(dt: TimeSpan) {
+    override fun checkYCollision() {
         val heightCoordDiff = if (useTopCollisionRatio) topCollisionRatio else floor(height / gridCellSize.toDouble())
         if (levelComponent.hasCollision(cx, cy - 1) && yr <= heightCoordDiff) {
             yr = heightCoordDiff
@@ -91,9 +91,9 @@ class PlatformerDynamicComponentDefault(
         }
     }
 
-    override fun calculateDeltaYGravity(dt: TimeSpan): Double {
+    override fun calculateDeltaYGravity(): Double {
         return if (gravityPulling) {
-            gravityMultiplier * gravityY * dt.seconds
+            gravityMultiplier * gravityY
         } else {
             0.0
         }
