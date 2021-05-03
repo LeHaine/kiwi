@@ -145,19 +145,16 @@ class InputController<InputType>(val views: Views) {
 
     private inline fun getKeyEvent(type: InputType, predicate: (Key) -> Boolean): Boolean {
         keyBindings[type]?.fastForEach {
-            println("checking key $it")
             if (predicate(it)) {
                 return true
             }
         }
         positiveAxesKeybindings[type]?.fastForEach {
-            println("checking pos key $it")
             if (predicate(it)) {
                 return true
             }
         }
         negativeAxesKeybindings[type]?.fastForEach {
-            println("checking neg key $it")
             if (predicate(it)) {
                 return true
             }
