@@ -42,6 +42,7 @@ open class Entity(
 
     init {
         syncViewPosition()
+
         gridPositionComponent.preXCheck = {
             checkAndResolveStaticCollisions(true)
         }

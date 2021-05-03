@@ -83,6 +83,10 @@ interface GridPositionComponent : Component {
         }
     }
 
+    fun onPositionManuallyChanged() {
+        lastPx = attachX
+        lastPy = attachY
+    }
 
     override fun buildDebugInfo(container: UiContainer) {
         container.uiCollapsibleSection("Grid Position") {

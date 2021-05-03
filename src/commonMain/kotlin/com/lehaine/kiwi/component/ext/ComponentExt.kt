@@ -17,6 +17,7 @@ fun GridPositionComponent.toGridPosition(cx: Int, cy: Int, xr: Double = 0.5, yr:
     this.cy = cy
     this.xr = xr
     this.yr = yr
+    onPositionManuallyChanged()
 }
 
 fun GridPositionComponent.toPixelPosition(x: Double, y: Double) {
@@ -24,6 +25,7 @@ fun GridPositionComponent.toPixelPosition(x: Double, y: Double) {
     this.cy = (y / gridCellSize).toInt()
     this.xr = (x - cx * gridCellSize) / gridCellSize
     this.yr = (y - cy * gridCellSize) / gridCellSize
+    onPositionManuallyChanged()
 }
 
 fun GridPositionComponent.dirTo(targetGridPosition: GridPositionComponent) =
