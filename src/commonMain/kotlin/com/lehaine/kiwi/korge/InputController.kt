@@ -19,7 +19,7 @@ class InputController<InputType>(val views: Views) {
     private val negativeAxesKeybindings = mutableMapOf<InputType, List<Key>>()
     private val negativeButtonBindings = mutableMapOf<InputType, List<GameButton>>()
 
-    private val input = views.input
+    private val input get() = views.input
 
     private val gamepads get() = views.input.gamepads
 
@@ -28,7 +28,7 @@ class InputController<InputType>(val views: Views) {
         GAMEPAD
     }
 
-    private var mode = InputMode.GAMEPAD
+    private var mode = InputMode.KEYBOARD
 
     init {
         views.addEventListener<KeyEvent> {
@@ -66,7 +66,7 @@ class InputController<InputType>(val views: Views) {
         return if (mode == InputMode.GAMEPAD) {
             onButtonEvent(type) { it != 0.0 }
         } else {
-            onKeyEvent(type) { input.keys.pressing(it) }
+            getKeyEvent(type) { input.keys.pressing(it) }
         }
     }
 
@@ -74,7 +74,7 @@ class InputController<InputType>(val views: Views) {
         return if (mode == InputMode.GAMEPAD) {
             onButtonEvent(type) { it != 0.0 } // todo figure out how to do gamepad just pressed
         } else {
-            onKeyEvent(type) { input.keys.justPressed(it) }
+            getKeyEvent(type) { input.keys.justPressed(it) }
         }
     }
 
@@ -101,7 +101,7 @@ class InputController<InputType>(val views: Views) {
         return false
     }
 
-    private inline fun onButtonStrength(type: InputType, predicate: (Double) -> Boolean): Double {
+    private inline fun getButtonStrength(type: InputType, predicate: (Double) -> Boolean): Double {
         if (input.connectedGamepads.isNotEmpty()) {
             gamepads.fastForEach { gamepad ->
                 buttonBindings[type]?.fastForEach {
@@ -124,18 +124,40 @@ class InputController<InputType>(val views: Views) {
         return 0.0
     }
 
-    private inline fun onKeyEvent(type: InputType, predicate: (Key) -> Boolean): Boolean {
+    private inline fun getKeyStrength(type: InputType, predicate: (Key) -> Boolean): Double {
         keyBindings[type]?.fastForEach {
+            if (predicate(it)) {
+                return 1.0
+            }
+        }
+        positiveAxesKeybindings[type]?.fastForEach {
+            if (predicate(it)) {
+                return 1.0
+            }
+        }
+        negativeAxesKeybindings[type]?.fastForEach {
+            if (predicate(it)) {
+                return -1.0
+            }
+        }
+        return 0.0
+    }
+
+    private inline fun getKeyEvent(type: InputType, predicate: (Key) -> Boolean): Boolean {
+        keyBindings[type]?.fastForEach {
+            println("checking key $it")
             if (predicate(it)) {
                 return true
             }
         }
         positiveAxesKeybindings[type]?.fastForEach {
+            println("checking pos key $it")
             if (predicate(it)) {
                 return true
             }
         }
         negativeAxesKeybindings[type]?.fastForEach {
+            println("checking neg key $it")
             if (predicate(it)) {
                 return true
             }
@@ -145,15 +167,13 @@ class InputController<InputType>(val views: Views) {
 
     fun strength(type: InputType): Double {
         return if (mode == InputMode.KEYBOARD) {
-            if (onKeyEvent(type) { input.keys.pressing(it) }) {
-                1.0
-            } else {
-                0.0
-            }
+            getKeyStrength(type) { input.keys.pressing(it) }
         } else {
-            onButtonStrength(type) { it >= deadzone }
+            getButtonStrength(type) { it >= deadzone }
         }
     }
+
+    fun dist(type: InputType) = abs(strength(type))
 
     fun angle(xAxes: InputType, yAxes: InputType) = atan2(strength(yAxes), strength(xAxes))
 
