@@ -11,7 +11,7 @@ import com.soywiz.korge.view.Container
 import com.soywiz.korge.view.addTo
 
 open class Entity(
-    val game: GameComponent,
+    open val game: GameComponent,
     val gridPositionComponent: GridPositionComponent = GridPositionComponentDefault(),
     val scaleComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     val container: Container = ComponentContainer(listOf(gridPositionComponent, scaleComponent))
@@ -33,6 +33,8 @@ open class Entity(
 
     var onDestroyedCallback: ((Entity) -> Unit)? = null
 
+    val level get() = game.level
+
     val cooldown get() = container.cooldown
     val cd get() = cooldown
 
@@ -50,6 +52,7 @@ open class Entity(
     }
 
     override fun update(dt: TimeSpan) {
+        gridPositionComponent.fixedProgressionRatio = game.fixedProgressionRatio
     }
 
     override fun fixedUpdate() {
@@ -332,9 +335,8 @@ open class SpriteEntity(
 
 open class SpriteLevelEntity(
     game: GameComponent,
-    open val level: LevelComponent<*>,
     spriteComponent: SpriteComponent = SpriteComponentDefault(),
-    levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(level),
+    levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(game.level),
     scaleComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     container: Container = ComponentContainer(listOf(spriteComponent, levelDynamicComponent, scaleComponent))
 ) : SpriteEntity(game, spriteComponent, levelDynamicComponent, scaleComponent, container) {
@@ -354,10 +356,9 @@ open class SpriteLevelEntity(
 
 open class LevelEntity(
     game: GameComponent,
-    open val level: LevelComponent<*>,
-    levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(level),
+    levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(game.level),
     scaleAndStretchComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
-    container: Container = ComponentContainer(listOf(level, levelDynamicComponent, scaleAndStretchComponent))
+    container: Container = ComponentContainer(listOf(game, levelDynamicComponent, scaleAndStretchComponent))
 ) : Entity(game, levelDynamicComponent, scaleAndStretchComponent, container) {
 
 
