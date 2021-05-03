@@ -2,6 +2,7 @@ package com.lehaine.kiwi.component
 
 import com.soywiz.korge.debug.uiCollapsibleSection
 import com.soywiz.korge.debug.uiEditableValue
+import com.soywiz.korma.interpolation.interpolate
 import com.soywiz.korui.UiContainer
 import kotlin.math.max
 import kotlin.math.min
@@ -22,19 +23,45 @@ interface GridPositionComponent : Component {
     val innerRadius get() = min(width, height) * 0.5
     val outerRadius get() = max(width, height) * 0.5
 
-    val px get() = (cx + xr) * gridCellSize
-    val py get() = (cy + yr) * gridCellSize
-    val centerX get() = px + (0.5 - anchorX) * gridCellSize
-    val centerY get() = py + (0.5 - anchorY) * gridCellSize
-    val top get() = py - anchorY * height
-    val right get() = px + (1 - anchorX) * width
-    val bottom get() = py + (1 - anchorY) * height
-    val left get() = px - anchorX * width
+    var interpolatePixelPosition: Boolean
+    var lastPx: Double
+    var lastPy: Double
+
+    val px: Double
+        get() {
+            return if (interpolatePixelPosition) {
+                fixedProgressionRatio.interpolate(lastPx, (cx + xr) * gridCellSize)
+            } else {
+                (cx + xr) * gridCellSize
+            }
+        }
+
+    val py: Double
+        get() {
+            return if (interpolatePixelPosition) {
+                fixedProgressionRatio.interpolate(lastPy, (cy + yr) * gridCellSize)
+            } else {
+                (cy + yr) * gridCellSize
+            }
+        }
+    val attachX get() = (cx + xr) * gridCellSize
+    val attachY get() = (cy + yr) * gridCellSize
+    val centerX get() = attachX + (0.5 - anchorX) * gridCellSize
+    val centerY get() = attachY + (0.5 - anchorY) * gridCellSize
+    val top get() = attachY - anchorY * height
+    val right get() = attachX + (1 - anchorX) * width
+    val bottom get() = attachY + (1 - anchorY) * height
+    val left get() = attachX - anchorX * width
+
+    var fixedProgressionRatio: Double
 
     var preXCheck: (() -> Unit)?
     var preYCheck: (() -> Unit)?
 
     fun updateGridPosition() {
+        lastPx = attachX
+        lastPy = attachY
+
         preXCheck?.invoke()
         while (xr > 1) {
             xr--
@@ -103,6 +130,11 @@ open class GridPositionComponentDefault(
     override var anchorY: Double = 0.5,
     override var gridCellSize: Int = 16
 ) : GridPositionComponent {
+    override var fixedProgressionRatio: Double = 1.0
+    override var interpolatePixelPosition: Boolean = true
+    override var lastPx: Double = 0.0
+    override var lastPy: Double = 0.0
+
     override var preXCheck: (() -> Unit)? = null
     override var preYCheck: (() -> Unit)? = null
 

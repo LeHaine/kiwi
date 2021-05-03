@@ -16,11 +16,13 @@ interface DynamicComponent : GridPositionComponent {
     var frictionY: Double
     var maxGridMovementPercent: Double
 
-
     /**
      * Should be called in fixedUpdate
      */
     override fun updateGridPosition() {
+        lastPx = attachX
+        lastPy = attachY
+
         velocityX += calculateDeltaXGravity()
         velocityY += calculateDeltaYGravity()
 
@@ -159,6 +161,10 @@ open class DynamicComponentDefault(
     override var frictionX: Double = 0.82
     override var frictionY: Double = 0.82
     override var maxGridMovementPercent: Double = 0.33
+    override var interpolatePixelPosition: Boolean = true
+    override var lastPx: Double = 0.0
+    override var lastPy: Double = 0.0
+    override var fixedProgressionRatio: Double = 1.0
 
     override var width: Double = 16.0
     override var height: Double = 16.0
