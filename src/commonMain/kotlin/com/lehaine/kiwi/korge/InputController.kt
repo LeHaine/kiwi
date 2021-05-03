@@ -1,7 +1,11 @@
 package com.lehaine.kiwi.korge
 
 import com.soywiz.kds.iterators.fastForEach
-import com.soywiz.korev.*
+import com.soywiz.korev.GameButton
+import com.soywiz.korev.GamePadConnectionEvent
+import com.soywiz.korev.Key
+import com.soywiz.korge.input.gamepad
+import com.soywiz.korge.input.keys
 import com.soywiz.korge.view.Views
 import kotlin.math.abs
 import kotlin.math.atan2
@@ -31,12 +35,19 @@ class InputController<InputType>(val views: Views) {
     private var mode = InputMode.KEYBOARD
 
     init {
-        views.addEventListener<KeyEvent> {
-            mode = InputMode.KEYBOARD
-
+        views.root.keys {
+            down {
+                mode = InputMode.KEYBOARD
+            }
         }
-        views.addEventListener<GamePadButtonEvent> {
-            mode = InputMode.GAMEPAD
+        views.root.gamepad {
+            button.add { mode = InputMode.GAMEPAD }
+            stick.add { mode = InputMode.GAMEPAD }
+            connection.add {
+                if (it.type == GamePadConnectionEvent.Type.DISCONNECTED) {
+                    mode = InputMode.KEYBOARD
+                }
+            }
         }
     }
 
@@ -116,7 +127,7 @@ class InputController<InputType>(val views: Views) {
                 }
                 negativeButtonBindings[type]?.fastForEach {
                     if (predicate(gamepad[it])) {
-                        return gamepad[it]
+                        return gamepad[it] * -1
                     }
                 }
             }
@@ -166,7 +177,7 @@ class InputController<InputType>(val views: Views) {
         return if (mode == InputMode.KEYBOARD) {
             getKeyStrength(type) { input.keys.pressing(it) }
         } else {
-            getButtonStrength(type) { it >= deadzone }
+            getButtonStrength(type) { abs(it) >= deadzone }
         }
     }
 
