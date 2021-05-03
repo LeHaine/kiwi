@@ -11,6 +11,7 @@ import com.soywiz.korge.view.Container
 import com.soywiz.korge.view.addTo
 
 open class Entity(
+    val game: GameComponent,
     val gridPositionComponent: GridPositionComponent = GridPositionComponentDefault(),
     val scaleComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     val container: Container = ComponentContainer(listOf(gridPositionComponent, scaleComponent))
@@ -24,8 +25,8 @@ open class Entity(
     var lastEntityCollided: Entity? = null
         private set
 
-    open val collisionEntities by lazy { listOf<Entity>() }
-    open val staticCollisionEntities by lazy { listOf<Entity>() }
+    val collisionEntities: List<Entity> by lazy { game.entities }
+    val staticCollisionEntities: List<Entity> by lazy { game.staticEntities }
 
     var destroyed = false
         private set
@@ -219,7 +220,13 @@ open class Entity(
 
         destroyed = true
         container.removeFromParent()
+        game.entities.remove(this)
+        if (static) {
+            game.staticEntities.remove(this)
+        }
         onDestroyedCallback?.invoke(this)
+
+
     }
 
     fun onDestroy(action: (Entity) -> Unit) {
@@ -290,12 +297,21 @@ fun <T : Entity> T.addToLayer(parent: Layers, layer: Int): T {
     return this
 }
 
+fun <T : Entity> T.addToGame(): T {
+    game.entities += this
+    if (static) {
+        game.staticEntities += this
+    }
+    return this
+}
+
 open class SpriteEntity(
+    game: GameComponent,
     val spriteComponent: SpriteComponent = SpriteComponentDefault(),
     gridPositionComponent: GridPositionComponent = GridPositionComponentDefault(),
     scaleAndStretchComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     container: Container = ComponentContainer(listOf(spriteComponent, gridPositionComponent, scaleAndStretchComponent))
-) : Entity(gridPositionComponent, scaleAndStretchComponent, container) {
+) : Entity(game, gridPositionComponent, scaleAndStretchComponent, container) {
 
     init {
         container.addChild(spriteComponent.sprite)
@@ -315,27 +331,19 @@ open class SpriteEntity(
 }
 
 open class SpriteLevelEntity(
+    game: GameComponent,
     open val level: LevelComponent<*>,
     spriteComponent: SpriteComponent = SpriteComponentDefault(),
     levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(level),
     scaleComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     container: Container = ComponentContainer(listOf(spriteComponent, levelDynamicComponent, scaleComponent))
-) : SpriteEntity(spriteComponent, levelDynamicComponent, scaleComponent, container) {
+) : SpriteEntity(game, spriteComponent, levelDynamicComponent, scaleComponent, container) {
 
-    override val collisionEntities: List<Entity> by lazy { level.entities }
-    override val staticCollisionEntities: List<Entity> by lazy { level.staticEntities }
 
     init {
         levelDynamicComponent.onLevelCollision = ::onLevelCollision
     }
 
-    override fun destroy() {
-        super.destroy()
-        level.entities.remove(this)
-        if (static) {
-            level.staticEntities.remove(this)
-        }
-    }
 
     open fun onLevelCollision(xDir: Int, yDir: Int) {}
 
@@ -343,47 +351,24 @@ open class SpriteLevelEntity(
     fun castRayTo(target: Entity) = castRayTo(target.gridPositionComponent)
 }
 
-fun <T : SpriteLevelEntity> T.addToLevel(): T {
-    level.entities += this
-    if (static) {
-        level.staticEntities += this
-    }
-    return this
-}
 
 open class LevelEntity(
+    game: GameComponent,
     open val level: LevelComponent<*>,
     levelDynamicComponent: LevelDynamicComponent = LevelDynamicComponentDefault(level),
     scaleAndStretchComponent: ScaleAndStretchComponent = ScaleAndStretchComponentDefault(),
     container: Container = ComponentContainer(listOf(level, levelDynamicComponent, scaleAndStretchComponent))
-) : Entity(levelDynamicComponent, scaleAndStretchComponent, container) {
+) : Entity(game, levelDynamicComponent, scaleAndStretchComponent, container) {
 
-    override val collisionEntities: List<Entity> by lazy { level.entities }
-    override val staticCollisionEntities: List<Entity> by lazy { level.staticEntities }
 
     init {
         levelDynamicComponent.onLevelCollision = ::onLevelCollision
     }
 
-    override fun destroy() {
-        super.destroy()
-        level.entities.remove(this)
-        if (static) {
-            level.staticEntities.remove(this)
-        }
-    }
 
     open fun onLevelCollision(xDir: Int, yDir: Int) {}
 
     fun castRayTo(target: GridPositionComponent) = castRayTo(target, level)
     fun castRayTo(target: Entity) = castRayTo(target.gridPositionComponent)
-}
-
-fun <T : LevelEntity> T.addToLevel(): T {
-    level.entities += this
-    if (static) {
-        level.staticEntities += this
-    }
-    return this
 }
 
