@@ -77,6 +77,8 @@ class InputController<InputType>(val views: Views) {
         negativeButtonBindings[type] = negativeButtons.toList()
     }
 
+    fun mouseDown() = input.mouseButtons != 0
+
     fun down(type: InputType, axisDeadzone: Double = defaultAxesDeadzoen): Boolean {
         return if (mode == InputMode.GAMEPAD) {
             onButtonEvent(type) { strength, isAxis ->
