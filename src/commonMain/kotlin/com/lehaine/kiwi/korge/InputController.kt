@@ -136,12 +136,20 @@ class InputController<InputType>(val views: Views) {
                 }
                 positiveButtonBindings[type]?.fastForEach {
                     if (predicate(gamepad[it], true)) {
-                        return gamepad[it]
+                        return if (it == GameButton.LY || it == GameButton.RY) {
+                            -gamepad[it]
+                        } else {
+                            gamepad[it]
+                        }
                     }
                 }
                 negativeButtonBindings[type]?.fastForEach {
                     if (predicate(gamepad[it], true)) {
-                        return gamepad[it] * -1
+                        return if (it == GameButton.LY || it == GameButton.RY) {
+                            -gamepad[it]
+                        } else {
+                            gamepad[it]
+                        }
                     }
                 }
             }
