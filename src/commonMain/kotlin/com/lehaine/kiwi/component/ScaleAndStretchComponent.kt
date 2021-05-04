@@ -13,6 +13,8 @@ interface ScaleAndStretchComponent : Component {
     var scaleX: Double
     var scaleY: Double
 
+    var restoreSpeed: Double
+
     fun updateStretchAndScale(dt: TimeSpan)
 
     override fun buildDebugInfo(container: UiContainer) {
@@ -63,8 +65,10 @@ class ScaleAndStretchComponentDefault : ScaleAndStretchComponent {
     override var scaleX = 1.0
     override var scaleY = 1.0
 
+    override var restoreSpeed: Double = 12.0
+
     override fun updateStretchAndScale(dt: TimeSpan) {
-        _stretchX += (1 - _stretchX) * min(1.0, 0.2 * dt.seconds)
-        _stretchY += (1 - _stretchY) * min(1.0, 0.2 * dt.seconds)
+        _stretchX += (1 - _stretchX) * min(1.0, restoreSpeed * dt.seconds)
+        _stretchY += (1 - _stretchY) * min(1.0, restoreSpeed * dt.seconds)
     }
 }
