@@ -51,3 +51,15 @@ fun <T : View> T.addFixedInterpUpdater(
     }
     return Cancellable { component.detach() }
 }
+
+
+fun <T : View> T.addTmodUpdater(targetFPS: Int, updatable: T.(dt: TimeSpan, tmod: Double) -> Unit): Cancellable {
+    val component = object : UpdateComponent {
+        override val view: View get() = this@addTmodUpdater
+        override fun update(dt: TimeSpan) {
+            updatable(this@addTmodUpdater, dt, dt.seconds * targetFPS)
+        }
+    }.attach()
+    component.update(TimeSpan.ZERO)
+    return Cancellable { component.detach() }
+}
