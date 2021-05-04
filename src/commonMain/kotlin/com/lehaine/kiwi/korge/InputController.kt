@@ -14,7 +14,7 @@ import kotlin.math.max
 
 class InputController<InputType>(val views: Views) {
 
-    var deadzone = 0.3
+    var defaultAxesDeadzoen = 0.3
 
     private val keyBindings = mutableMapOf<InputType, List<Key>>()
     private val buttonBindings = mutableMapOf<InputType, List<GameButton>>()
@@ -32,7 +32,11 @@ class InputController<InputType>(val views: Views) {
         GAMEPAD
     }
 
-    private var mode = InputMode.KEYBOARD
+    var mode = InputMode.KEYBOARD
+
+    internal var locked = false
+    internal var exclusiveId: String? = null
+    private var accessIdGen = 0
 
     init {
         views.root.keys {
@@ -73,37 +77,44 @@ class InputController<InputType>(val views: Views) {
         negativeButtonBindings[type] = negativeButtons.toList()
     }
 
-    fun down(type: InputType): Boolean {
+    fun down(type: InputType, axisDeadzone: Double = defaultAxesDeadzoen): Boolean {
         return if (mode == InputMode.GAMEPAD) {
-            onButtonEvent(type) { it != 0.0 }
+            onButtonEvent(type) { strength, isAxis ->
+                (isAxis && abs(strength) >= axisDeadzone) || !isAxis && strength != 0.0
+            }
         } else {
             getKeyEvent(type) { input.keys.pressing(it) }
         }
     }
 
-    fun pressed(type: InputType): Boolean {
+    fun pressed(type: InputType, axisDeadzone: Double = defaultAxesDeadzoen): Boolean {
         return if (mode == InputMode.GAMEPAD) {
-            onButtonEvent(type) { it != 0.0 } // todo figure out how to do gamepad just pressed
+            onButtonEvent(type) { strength, isAxis -> // todo figure out how to do gamepad just pressed
+                (isAxis && abs(strength) >= axisDeadzone) || !isAxis && strength != 0.0
+            }
         } else {
             getKeyEvent(type) { input.keys.justPressed(it) }
         }
     }
 
-    private inline fun onButtonEvent(type: InputType, predicate: (Double) -> Boolean): Boolean {
+    private inline fun onButtonEvent(
+        type: InputType,
+        predicate: (strength: Double, isAxis: Boolean) -> Boolean
+    ): Boolean {
         if (input.connectedGamepads.isNotEmpty()) {
             gamepads.fastForEach { gamepad ->
                 buttonBindings[type]?.fastForEach {
-                    if (predicate(gamepad[it])) {
+                    if (predicate(gamepad[it], false)) {
                         return true
                     }
                 }
                 positiveButtonBindings[type]?.fastForEach {
-                    if (predicate(gamepad[it])) {
+                    if (predicate(gamepad[it], true)) {
                         return true
                     }
                 }
                 negativeButtonBindings[type]?.fastForEach {
-                    if (predicate(gamepad[it])) {
+                    if (predicate(gamepad[it], true)) {
                         return true
                     }
                 }
@@ -112,21 +123,24 @@ class InputController<InputType>(val views: Views) {
         return false
     }
 
-    private inline fun getButtonStrength(type: InputType, predicate: (Double) -> Boolean): Double {
+    private inline fun getButtonStrength(
+        type: InputType,
+        predicate: (strength: Double, isAxis: Boolean) -> Boolean
+    ): Double {
         if (input.connectedGamepads.isNotEmpty()) {
             gamepads.fastForEach { gamepad ->
                 buttonBindings[type]?.fastForEach {
-                    if (predicate(gamepad[it])) {
+                    if (predicate(gamepad[it], false)) {
                         return gamepad[it]
                     }
                 }
                 positiveButtonBindings[type]?.fastForEach {
-                    if (predicate(gamepad[it])) {
+                    if (predicate(gamepad[it], true)) {
                         return gamepad[it]
                     }
                 }
                 negativeButtonBindings[type]?.fastForEach {
-                    if (predicate(gamepad[it])) {
+                    if (predicate(gamepad[it], true)) {
                         return gamepad[it] * -1
                     }
                 }
@@ -173,21 +187,28 @@ class InputController<InputType>(val views: Views) {
         return false
     }
 
-    fun strength(type: InputType): Double {
+    fun strength(type: InputType, axisDeadzone: Double = defaultAxesDeadzoen): Double {
         return if (mode == InputMode.KEYBOARD) {
             getKeyStrength(type) { input.keys.pressing(it) }
         } else {
-            getButtonStrength(type) { abs(it) >= deadzone }
+            getButtonStrength(type) { strength, isAxis ->
+                (isAxis && abs(strength) >= axisDeadzone) || !isAxis && strength != 0.0
+            }
         }
     }
 
-    fun dist(type: InputType) = abs(strength(type))
+    fun dist(type: InputType, deadzone: Double = defaultAxesDeadzoen) = abs(strength(type, deadzone))
 
-    fun angle(xAxes: InputType, yAxes: InputType) = atan2(strength(yAxes), strength(xAxes))
+    fun angle(xAxes: InputType, yAxes: InputType, deadzone: Double = defaultAxesDeadzoen) =
+        atan2(strength(yAxes, deadzone), strength(xAxes, deadzone))
 
-    fun dist(xAxes: InputType, yAxes: InputType) = max(abs(strength(xAxes)), abs(strength(yAxes)))
+    fun dist(xAxes: InputType, yAxes: InputType, deadzone: Double = defaultAxesDeadzoen) =
+        max(abs(strength(xAxes, deadzone)), abs(strength(yAxes, deadzone)))
+
+    fun createAccess(id: String, exclusive: Boolean = false) =
+        InputControllerAccess(input, this, id + accessIdGen++, exclusive)
 
     fun update() {
-
+        // TODO manage button presses? short presses, long presses, ..?
     }
 }
