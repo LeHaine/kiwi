@@ -47,6 +47,7 @@ class InputControllerAccess<InputType>(
         releaseExclusivity()
     }
 
+    fun mouseDown() = owner.mouseDown()
     fun keyDown(key: Key) = !locked && input.keys.pressing(key)
     fun keyPressed(key: Key) = !locked && input.keys.justPressed(key)
     fun keyReleased(key: Key) = !locked && input.keys.justReleased(key)
