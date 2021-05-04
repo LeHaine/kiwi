@@ -109,14 +109,13 @@ class ParticleSimulator(maxParticles: Int) {
         particle.visible = false
     }
 
-    private fun advance(particle: Particle, dt: TimeSpan) {
+    private fun advance(particle: Particle, dt: TimeSpan, tmod: Double) {
         particle.delay -= dt
         if (particle.killed || particle.delay > 0.milliseconds) return
 
         particle.onStart?.invoke()
         particle.onStart = null
 
-        val tmod = dt.seconds * 60
         with(particle) {
             // gravity
             xDelta += gravityX * dt.seconds
@@ -175,10 +174,15 @@ class ParticleSimulator(maxParticles: Int) {
         }
     }
 
-    fun simulate(dt: TimeSpan) {
+    fun simulate(dt: TimeSpan, optionalTmod: Double = -1.0) {
+        val tmod = if (optionalTmod < 0) {
+            dt.seconds * 60
+        } else {
+            optionalTmod
+        }
         for (i in 0..numAlloc) {
             val particle = particles[i]
-            advance(particle, dt)
+            advance(particle, dt, tmod)
         }
     }
 }
