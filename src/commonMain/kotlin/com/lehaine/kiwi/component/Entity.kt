@@ -41,6 +41,7 @@ open class Entity(
     var static = false
 
     init {
+        gridPositionComponent.updateGridPosition()
         syncViewPosition()
 
         gridPositionComponent.preXCheck = {
