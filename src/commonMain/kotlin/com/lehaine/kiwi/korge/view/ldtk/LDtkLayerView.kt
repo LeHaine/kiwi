@@ -371,7 +371,7 @@ class LDtkLayerView(val layer: Layer, val tileset: TileSet? = null) : View() {
     }
 
     companion object {
-        private val dummyTexturedVertexArray = TexturedVertexArray(0, IntArray(0))
+        private val dummyTexturedVertexArray = TexturedVertexArray(0, ShortArray(0))
 
         private const val TL = 0
         private const val TR = 1
