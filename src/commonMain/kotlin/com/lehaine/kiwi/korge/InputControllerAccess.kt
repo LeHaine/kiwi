@@ -47,7 +47,7 @@ class InputControllerAccess<InputType>(
         releaseExclusivity()
     }
 
-    fun mouseDown() = owner.mouseDown()
+    fun mouseDown() = !locked && owner.mouseDown()
     fun keyDown(key: Key) = !locked && input.keys.pressing(key)
     fun keyPressed(key: Key) = !locked && input.keys.justPressed(key)
     fun keyReleased(key: Key) = !locked && input.keys.justReleased(key)
@@ -55,9 +55,9 @@ class InputControllerAccess<InputType>(
     fun pressed(type: InputType) = !locked && owner.pressed(type, deadzone)
     fun down(type: InputType) = !locked && owner.down(type, deadzone)
 
-    fun strength(type: InputType) = owner.strength(type, deadzone)
-    fun dist(type: InputType) = owner.dist(type, deadzone)
-    fun angle(xAxes: InputType, yAxes: InputType) = owner.angle(xAxes, yAxes, deadzone)
-    fun dist(xAxes: InputType, yAxes: InputType) = owner.dist(xAxes, yAxes, deadzone)
+    fun strength(type: InputType) = if (locked) 0.0 else owner.strength(type, deadzone)
+    fun dist(type: InputType) = if (locked) 0.0 else owner.dist(type, deadzone)
+    fun angle(xAxes: InputType, yAxes: InputType) = if (locked) 0.0 else owner.angle(xAxes, yAxes, deadzone)
+    fun dist(xAxes: InputType, yAxes: InputType) = if (locked) 0.0 else owner.dist(xAxes, yAxes, deadzone)
 
 }
