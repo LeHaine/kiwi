@@ -325,6 +325,12 @@ class CameraContainer(
         }
     }
 
+    fun viewIsOnScreen(view: View): Boolean {
+        getGlobalBounds(camGlobalBounds)
+        view.getGlobalBounds(tempRect)
+        return camGlobalBounds.intersects(tempRect)
+    }
+
     fun sync() {
         val realScaleX = cameraZoom
         val realScaleY = cameraZoom
