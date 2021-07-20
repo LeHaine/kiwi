@@ -11,6 +11,10 @@ import com.soywiz.korim.color.Colors
 import com.soywiz.korim.color.RGBA
 import com.soywiz.korui.UiContainer
 
+/**
+ * Outlines a view with a pixel outline.
+ * @author Colton Daily
+ */
 class PixelOutlineFilter(color: RGBA = Colors.BLACK) : ShaderFilter() {
 
     companion object {
