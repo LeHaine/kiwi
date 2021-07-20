@@ -5,7 +5,6 @@ package com.lehaine.kiwi.component
  * @date 7/20/2021
  */
 interface TargetComponent : Component {
-    val dynamicComponent: DynamicComponent
     var tx: Int
     var ty: Int
 
@@ -14,7 +13,7 @@ interface TargetComponent : Component {
         this.ty = ty
     }
 
-    fun moveToTarget(speed: Double = 0.008) {
+    fun moveToTarget(dynamicComponent: DynamicComponent, speed: Double = 0.008) {
         val cx = dynamicComponent.cx
         val cy = dynamicComponent.cy
 
@@ -47,13 +46,16 @@ interface TargetComponent : Component {
 
 
     companion object {
-        operator fun invoke(dynamicComponent: DynamicComponent): TargetComponent {
-            return TargetComponentDefault(dynamicComponent)
+        operator fun invoke(): TargetComponent {
+            return TargetComponentDefault()
         }
     }
 }
 
-class TargetComponentDefault(override val dynamicComponent: DynamicComponent) : TargetComponent {
+fun <T> T.moveToTarget(speed: Double = 0.008) where T : TargetComponent, T : DynamicComponent =
+    moveToTarget(this, speed)
+
+class TargetComponentDefault() : TargetComponent {
     override var tx: Int = -1
     override var ty: Int = -1
 }
