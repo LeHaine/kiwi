@@ -35,6 +35,15 @@ class StateMachine<STATE : Any>(private val states: HashMap<STATE, State<out STA
         _currentState.update(dt)
     }
 
+    fun changeState(state:STATE) {
+        if (_currentState.type != state) {
+            _currentState.end()
+            _currentState = states[state] ?: error("Unable to set state of: $state")
+            _currentState.begin()
+            _currentState.also { onStateChanged?.invoke(it.type) }
+        }
+    }
+
     @StateMachineDsl
     class StateMachineBuilder<STATE : Any>(private val initialState: STATE) {
         private val states = hashMapOf<STATE, State<out STATE>>()
