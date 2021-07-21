@@ -15,5 +15,6 @@ jobs:
 
     steps:
       - name: Ping Jitpack
+        continue-on-error: true
         run: curl --max-time 5.0 https://jitpack.io/com/lehaine/kiwi/$(echo $GITHUB_SHA | cut -c1-10)/
 
