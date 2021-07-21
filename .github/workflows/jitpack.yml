@@ -15,5 +15,5 @@ jobs:
 
     steps:
       - name: Ping Jitpack
-        run: curl --connect-timeout 5.0 https://jitpack.io/com/lehaine/kiwi/$(echo $GITHUB_SHA | cut -c1-10)/
+        run: curl --max-time 5.0 https://jitpack.io/com/lehaine/kiwi/$(echo $GITHUB_SHA | cut -c1-10)/
 
