@@ -15,7 +15,5 @@ jobs:
 
     steps:
       - name: Ping Jitpack
-        run: |
-          echo $GITHUB_SHA | cut -c1-10
-          curl https://jitpack.io/#com.lehaine/kiwi/$(echo $GITHUB_SHA | cut -c1-10)
+        run: curl https://jitpack.io/com/lehaine/kiwi/$(echo $GITHUB_SHA | cut -c1-10)/
 
