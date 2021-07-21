@@ -6,17 +6,12 @@ import com.soywiz.klock.TimeSpan
 import com.soywiz.klock.milliseconds
 import com.soywiz.korge.view.View
 
-/**
- * @author Colton Daily
- * @date 7/20/2021
- */
-
 
 @DslMarker
 @Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
-annotation class EntityAnimatorDslMarker
+annotation class ActionCreatorDslMarker
 
-interface BaseEntityAnimatorNode {
+interface BaseActionNode {
     var time: TimeSpan
     var executed: Boolean
     val executeUntil: () -> Boolean
@@ -24,14 +19,18 @@ interface BaseEntityAnimatorNode {
     fun isDoneExecuting() = executed && executeUntil() && (time <= 0.milliseconds || time == TimeSpan.NIL)
 }
 
-open class EntityAnimator(
-    val init: EntityAnimator.() -> Unit = {}
-) : BaseEntityAnimatorNode {
+/**
+ * @author Colton Daily
+ * @date 7/20/2021
+ */
+open class ActionCreator(
+    val init: ActionCreator.() -> Unit = {}
+) : BaseActionNode {
 
     private var initialized = false
 
     @PublishedApi
-    internal val nodes = Deque<BaseEntityAnimatorNode>()
+    internal val nodes = Deque<BaseActionNode>()
 
     override var time: TimeSpan = TimeSpan.NIL
     override var executed: Boolean = false
@@ -61,19 +60,19 @@ open class EntityAnimator(
     }
 
     fun waitFor(condition: () -> Boolean) {
-        block(untilCondition = condition)
+        action(untilCondition = condition)
     }
 
     fun wait(time: TimeSpan) {
-        block(time = time)
+        action(time = time)
     }
 
-    fun block(
+    fun action(
         untilCondition: () -> Boolean = { true },
         time: TimeSpan = TimeSpan.NIL,
         callback: () -> Unit = {}
     ) {
-        nodes.add(object : BaseEntityAnimatorNode {
+        nodes.add(object : BaseActionNode {
             override var time: TimeSpan = time
             override var executed: Boolean = false
             override val executeUntil = untilCondition
@@ -83,10 +82,10 @@ open class EntityAnimator(
 }
 
 
-fun View.entityAnimator(
-    block: @EntityAnimatorDslMarker EntityAnimator.() -> Unit = {}
-): EntityAnimator = EntityAnimator().apply(block)
+fun View.actionCreator(
+    block: @ActionCreatorDslMarker ActionCreator.() -> Unit = {}
+): ActionCreator = ActionCreator().apply(block)
 
-fun Entity.entityAnimator(
-    block: @EntityAnimatorDslMarker EntityAnimator.() -> Unit = {}
-): EntityAnimator = EntityAnimator().apply(block)
+fun Entity.actionCreator(
+    block: @ActionCreatorDslMarker ActionCreator.() -> Unit = {}
+): ActionCreator = ActionCreator().apply(block)
