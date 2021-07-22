@@ -6,7 +6,34 @@ My personal library for use with Kotlin Multiplatform and Korge that I call **Ki
 
 ### Versioning
 
-The version isn't following semver or some sort of structured versioning. I usually just use the latest git code for my projects.
-I will occasionally release a version that I deem to be pretty stable. It will most likely have breaking changes.
+The version isn't following semver or some sort of structured versioning. You can grab a specific commit using the commit hash or just use the nightly. See [Install][] section.
 
-Use at your own risk :)
+### Install
+
+In your `build.gradle.kts`:
+
+Add the **Jitpack** repository:
+```Kotlin
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```
+
+Add the dependency:
+```Kotlin
+	dependencies {
+        implementation 'com.lehaine.kiwi:kiwi:${versionOrCommitHash}'
+    }
+```
+
+
+If you want the nightly / most recent commit:
+
+```Kotlin
+	dependencies {
+        implementation 'com.lehaine.kiwi:kiwi:master-SNAPSHOT'
+    }
+```
