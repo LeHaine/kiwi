@@ -20,7 +20,7 @@ inline fun Container.enhancedSprite(
 ): EnhancedSprite = EnhancedSprite(bitmap, anchorX, anchorY, hitShape, smoothing).addTo(this, callback)
 
 inline fun Layers.enhancedSprite(
-    layer:Int = 0,
+    layer: Int = 0,
     bitmap: BmpSlice = Bitmaps.white,
     anchorX: Double = 0.0,
     anchorY: Double = 0.0,
@@ -119,6 +119,7 @@ class EnhancedSprite(
             if (animationRequested) {
                 nextSprite(frameTime)
             }
+            anim.update()
         }
     }
 
@@ -293,7 +294,7 @@ class EnhancedSprite(
 
         internal fun update() {
             states.fastForEach { state ->
-                if (state.reason()) {
+                if (state.reason() && currentAnimation !== state.anim) {
                     if (state.loop) {
                         playAnimationLooped(state.anim)
                     } else {
