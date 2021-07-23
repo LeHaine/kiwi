@@ -41,13 +41,10 @@ class FParticleSimulator {
     }
 
 
-    private fun advance(particle: FSprite, particleContainer: FParticleContainer, dt: TimeSpan, tmod: Float) {
+    private fun advance(particle: FSprite, particleContainer: FParticleContainer, dt: TimeSpan, tmod: Float): Boolean {
         particleContainer.run {
             particle.delay -= dt
-            if (particle.killed || particle.delay > 0.milliseconds) return
-
-//            particle.onStart?.invoke()
-//            particle.onStart = null
+            if (particle.killed || particle.delay > 0.milliseconds) return false
 
             with(particle) {
                 // gravity
@@ -98,14 +95,14 @@ class FParticleSimulator {
                     //   alpha -= (fadeOutSpeed * tmod)
                 }
 
-                if (remainingLife <= 0.milliseconds) {// && alpha <= 0) {
-                    //      onKill?.invoke()
-                    //kill(particle)
-
+                return if (remainingLife <= 0.milliseconds) {// && alpha <= 0) {
                     particle.life = TimeSpan.ZERO
                     particle.killed = true
+                    //particle.alpha = 0f
+                    //particle.visible = false
+                    false
                 } else {
-                    //   onUpdate?.invoke(particle)
+                    true
                 }
             }
         }
@@ -123,8 +120,9 @@ class FParticleSimulator {
             optionalTmod
         }
         particleContainer.fastForEach {
-            advance(it, particleContainer, dt, tmod.toFloat())
-            particleContainer.callback(it)
+            if (advance(it, particleContainer, dt, tmod.toFloat())) {
+                particleContainer.callback(it)
+            }
         }
     }
 }
