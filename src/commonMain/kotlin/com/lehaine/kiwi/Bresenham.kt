@@ -46,7 +46,7 @@ inline fun castRay(fromX: Int, fromY: Int, toX: Int, toY: Int, rayCanPass: (Int,
         var y = y0
         val yStep = if (y0 < y1) 1 else -1
 
-        for (x in x0..(x1 + 1)) {
+        for (x in x0 until (x1 + 1)) {
             if (swapXY && !rayCanPass(y, x) || !swapXY && !rayCanPass(x, y)) {
                 return false
             }
@@ -98,7 +98,7 @@ inline fun castThickRay(fromX: Int, fromY: Int, toX: Int, toY: Int, rayCanPass: 
         val yStep = if (y0 < y1) 1 else -1
 
         if (swapXY) {
-            for (x in x0..(x1 + 1)) {
+            for (x in x0 until (x1 + 1)) {
                 if (!rayCanPass(y, x)) {
                     return false
                 }
@@ -112,7 +112,7 @@ inline fun castThickRay(fromX: Int, fromY: Int, toX: Int, toY: Int, rayCanPass: 
                 }
             }
         } else {
-            for (x in x0..(x1 + 1)) {
+            for (x in x0 until (x1 + 1)) {
                 if (!rayCanPass(y, x)) {
                     return false
                 }
