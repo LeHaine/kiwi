@@ -13,6 +13,7 @@ class AStar(private val width: Int, private val height: Int, private val hasColl
 
     fun init() {
         initialized = true
+        nodes.clear()
         for (cy in 0 until height) {
             for (cx in 0 until width) {
                 if (hasCollision(cx - 1, cy - 1) && !hasCollision(cx, cy - 1) && !hasCollision(cx - 1, cy)
@@ -78,8 +79,7 @@ class AStar(private val width: Int, private val height: Int, private val hasColl
 
     private fun astar(start: PathNode, end: PathNode): ArrayList<PathNode> {
         val open = arrayListOf(start)
-        val openMap = hashMapOf<Int, Boolean>()
-        openMap[start.id] = true
+        val openMap = hashMapOf(start.id to true)
         val closedMap = hashMapOf<Int, Boolean>()
 
         while (open.size > 0) {
