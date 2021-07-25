@@ -10,7 +10,7 @@ import kotlin.math.floor
  *
  * https://github.com/deepnight/deepnightLibs/blob/master/src/dn/Bresenham.hx
  */
-fun castRay(fromX: Int, fromY: Int, toX: Int, toY: Int, rayCanPass: (Int, Int) -> Boolean): Boolean {
+inline fun castRay(fromX: Int, fromY: Int, toX: Int, toY: Int, rayCanPass: (Int, Int) -> Boolean): Boolean {
     var x0 = fromX
     var y0 = fromY
     var x1 = toX
@@ -61,7 +61,7 @@ fun castRay(fromX: Int, fromY: Int, toX: Int, toY: Int, rayCanPass: (Int, Int) -
     return false
 }
 
-fun castThickRay(fromX: Int, fromY: Int, toX: Int, toY: Int, rayCanPass: (Int, Int) -> Boolean): Boolean {
+inline fun castThickRay(fromX: Int, fromY: Int, toX: Int, toY: Int, rayCanPass: (Int, Int) -> Boolean): Boolean {
     var x0 = fromX
     var y0 = fromY
     var x1 = toX

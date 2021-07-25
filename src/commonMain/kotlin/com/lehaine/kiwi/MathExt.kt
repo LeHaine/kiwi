@@ -13,6 +13,8 @@ fun sparseListOf(vararg ranges: IntRange): List<Int> = ranges.flatMap { it }
 fun distSqr(ax: Double, ay: Double, bx: Double, by: Double) =
     (ax - bx) * (ax - bx) + (ay - by) * (ay - by)
 
+fun distSqr(ax: Int, ay: Int, bx: Int, by: Int) = distSqr(ax.toDouble(), ay.toDouble(), bx.toDouble(), by.toDouble())
+
 fun dist(ax: Double, ay: Double, bx: Double, by: Double) =
     sqrt(distSqr(ax, ay, bx, by))
 
