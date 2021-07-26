@@ -286,7 +286,7 @@ open class Entity(
             target.gridPositionComponent.yr
         )
 
-    protected fun syncViewPosition() {
+    protected open fun syncViewPosition() {
         container.x = gridPositionComponent.px
         container.y = gridPositionComponent.py
     }
@@ -329,7 +329,7 @@ open class SpriteEntity(
         checkCollisions()
     }
 
-    protected fun syncSprite() {
+    protected open fun syncSprite() {
         spriteComponent.sprite.scaleX = spriteComponent.dir.toDouble() * scaleComponent.scaleX * scaleComponent.stretchX
         spriteComponent.sprite.scaleY = scaleComponent.scaleY * scaleComponent.stretchY
     }
