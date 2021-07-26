@@ -212,7 +212,7 @@ class FParticleContainer(maxSize: Int) : FSprites(maxSize) {
             i32[index * SIZE + 29] = value
         }
 
-    fun FSprite.reset() {
+    fun FSprite.resetParticle() {
         radiansf = 0f
 
         xDelta = 0f
