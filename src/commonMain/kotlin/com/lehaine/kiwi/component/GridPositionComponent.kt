@@ -30,18 +30,18 @@ interface GridPositionComponent : Component {
     val px: Double
         get() {
             return if (interpolatePixelPosition) {
-                fixedProgressionRatio.interpolate(lastPx, (cx + xr) * gridCellSize)
+                fixedProgressionRatio.interpolate(lastPx, attachX)
             } else {
-                (cx + xr) * gridCellSize
+                attachX
             }
         }
 
     val py: Double
         get() {
             return if (interpolatePixelPosition) {
-                fixedProgressionRatio.interpolate(lastPy, (cy + yr) * gridCellSize)
+                fixedProgressionRatio.interpolate(lastPy, attachY)
             } else {
-                (cy + yr) * gridCellSize
+                attachY
             }
         }
     val attachX get() = (cx + xr) * gridCellSize
