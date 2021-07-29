@@ -1,5 +1,7 @@
 package com.lehaine.kiwi.korge.view.ldtk
 
+import com.lehaine.kiwi.korge.view.Layers
+import com.lehaine.kiwi.korge.view.addToLayer
 import com.lehaine.ldtk.*
 import com.soywiz.kds.FastIdentityMap
 import com.soywiz.kds.Pool
@@ -29,6 +31,59 @@ inline fun Container.ldtkLayer(
     callback: LDtkLayerView.() -> Unit = {}
 ) =
     LDtkLayerView(layer, tileset).addTo(this, callback)
+
+inline fun Layers.ldtkLayer(
+    layer: Layer,
+    tileset: TileSet? = null,
+    layerIdx: Int = 0,
+    callback: LDtkLayerView.() -> Unit = {}
+) =
+    LDtkLayerView(layer, tileset).addToLayer(this, layerIdx, callback)
+
+inline fun Container.ldtkAutoLayer(
+    layer: LayerAutoLayer,
+    level: LDtkLevel,
+    callback: LDtkLayerView.() -> Unit = {}
+) =
+    LDtkLayerView(layer, level.tileSets[layer.tileset.json.uid]).addTo(this, callback)
+
+inline fun Layers.ldtkAutoLayer(
+    layer: LayerAutoLayer,
+    level: LDtkLevel,
+    layerIdx: Int = 0,
+    callback: LDtkLayerView.() -> Unit = {}
+) =
+    LDtkLayerView(layer, level.tileSets[layer.tileset.json.uid]).addToLayer(this, layerIdx, callback)
+
+inline fun Container.ldtkTilesLayer(
+    layer: LayerTiles,
+    level: LDtkLevel,
+    callback: LDtkLayerView.() -> Unit = {}
+) =
+    LDtkLayerView(layer, level.tileSets[layer.tileset.json.uid]).addTo(this, callback)
+
+inline fun Layers.ldtkTilesLayer(
+    layer: LayerTiles,
+    level: LDtkLevel,
+    layerIdx: Int = 0,
+    callback: LDtkLayerView.() -> Unit = {}
+) =
+    LDtkLayerView(layer, level.tileSets[layer.tileset.json.uid]).addToLayer(this, layerIdx, callback)
+
+inline fun Container.ldtkIntGridAutoLayer(
+    layer: LayerIntGridAutoLayer,
+    level: LDtkLevel,
+    callback: LDtkLayerView.() -> Unit = {}
+) =
+    LDtkLayerView(layer, level.tileSets[layer.tileset.json.uid]).addTo(this, callback)
+
+inline fun Layers.ldtkIntGridAutoLayer(
+    layer: LayerIntGridAutoLayer,
+    level: LDtkLevel,
+    layerIdx: Int = 0,
+    callback: LDtkLayerView.() -> Unit = {}
+) =
+    LDtkLayerView(layer, level.tileSets[layer.tileset.json.uid]).addToLayer(this, layerIdx, callback)
 
 class LDtkLayerView(val layer: Layer, val tileset: TileSet? = null) : View() {
     private var contentVersion = 0
