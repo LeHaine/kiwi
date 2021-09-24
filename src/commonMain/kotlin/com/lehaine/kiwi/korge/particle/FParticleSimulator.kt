@@ -5,6 +5,7 @@ import com.soywiz.klock.milliseconds
 import com.soywiz.korge.view.fast.FSprite
 import com.soywiz.korge.view.fast.fastForEach
 import com.soywiz.korim.bitmap.BmpSlice
+import com.soywiz.korim.color.RGBA
 import kotlin.math.pow
 
 class FParticleSimulator {
@@ -16,6 +17,7 @@ class FParticleSimulator {
             particleContainer.run {
                 alloc().also {
                     it.reset()
+                    it.resetParticle()
                     it.x = x
                     it.y = y
                     it.setTex(bmpSlice)
@@ -26,6 +28,7 @@ class FParticleSimulator {
                 FSprite(bestIdx).apply {
                     //     onKill?.invoke()
                     reset()
+                    resetParticle()
                     this.x = x
                     this.y = y
                 }
@@ -83,23 +86,22 @@ class FParticleSimulator {
                 scaleDeltaY *= scaleFrictPow
 
                 // color
-//            val colorR = color.rd + particle.colorRdelta * tmod
-//            val colorG = color.gd + particle.colorGdelta * tmod
-//            val colorB = color.bd + particle.colorBdelta * tmod
-//            val colorA = color.ad + particle.alphaDelta * tmod
-//            color = RGBA.float(colorR, colorG, colorB, colorA)
+                val colorR = colorMul.rd + particle.colorRdelta * tmod
+                val colorG = colorMul.gd + particle.colorGdelta * tmod
+                val colorB = colorMul.bd + particle.colorBdelta * tmod
+                val colorA = colorMul.ad + particle.alphaDelta * tmod
+                colorMul = RGBA.float(colorR, colorG, colorB, colorA)
 
                 // life
                 remainingLife -= dt
-                if (remainingLife <= 0.milliseconds) {
-                    //   alpha -= (fadeOutSpeed * tmod)
+                if (remainingLife.milliseconds <= 0) {
+                    colorMul = colorMul.withAd(colorMul.ad - (fadeOutSpeed * tmod))
                 }
 
-                return if (remainingLife <= 0.milliseconds) {// && alpha <= 0) {
+                return if (remainingLife <= 0.milliseconds && colorMul.a <= 0) {
                     particle.life = TimeSpan.ZERO
                     particle.killed = true
-                    //particle.alpha = 0f
-                    //particle.visible = false
+                    free(particle)
                     false
                 } else {
                     true
