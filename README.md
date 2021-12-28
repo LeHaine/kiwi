@@ -1,3 +1,5 @@
+# NO LONGER MAINTAINED - SWITCHED IN FAVOR OF [LittleKt](https://github.com/LittleKtOrg/LittleKt)
+
 [![Release](https://jitpack.io/v/com.lehaine/kiwi.svg)](https://jitpack.io/#com.lehaine/kiwi)
 
 ## About
